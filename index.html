@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stripe Payment Simulator — Data Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--bg4:#242442;
+  --text:#e8e8f0;--text2:#a0a0b8;--text3:#6a6a82;
+  --accent:#6c5ce7;--accent2:#a29bfe;--accent3:#dcd6ff;
+  --green:#00cec9;--green2:#55efc4;
+  --red:#ff6b6b;--orange:#fdcb6e;--blue:#74b9ff;
+  --stripe:#635bff;--stripe2:#7a73ff;
+  --card:#16162a;--card-border:#2a2a44;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+a{color:var(--accent2);text-decoration:none;transition:color .2s}
+a:hover{color:var(--accent3)}
+img{max-width:100%}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+
+/* ── Layout ── */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+section{padding:80px 0}
+.section-label{
+  font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.section-label::before{content:'';width:24px;height:2px;background:var(--accent2);display:inline-block}
+h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;line-height:1.2;letter-spacing:-.02em}
+h3{font-size:1.4rem;font-weight:700;margin-bottom:12px}
+.subtitle{font-size:1.1rem;color:var(--text2);max-width:700px;margin-bottom:40px}
+
+/* ── Hero ── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;
+  position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 0%,#1a1040 0%,var(--bg) 70%);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(108,92,231,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(108,92,231,.07) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%);
+}
+.hero-content{position:relative;z-index:1;max-width:800px;padding:0 24px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
+  background:rgba(108,92,231,.15);border:1px solid rgba(108,92,231,.3);
+  border-radius:100px;font-size:.8rem;font-weight:600;color:var(--accent2);margin-bottom:24px;
+}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{
+  font-size:clamp(2.4rem,5vw,4rem);font-weight:900;line-height:1.1;
+  letter-spacing:-.03em;margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 0%,var(--accent2) 50%,var(--green) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero p{font-size:1.15rem;color:var(--text2);max-width:600px;margin:0 auto 36px}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-top:20px}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:2.6rem;font-weight:900;font-family:var(--mono);color:#fff;display:block}
+.hero-stat .label{font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.scroll-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  font-size:.75rem;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:8px;
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+.scroll-hint svg{width:20px;height:20px;stroke:var(--text3)}
+
+/* ── Cards ── */
+.card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:28px;transition:border-color .3s,transform .2s;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-grid{display:grid;gap:20px}
+.card-grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card-grid.cols-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card-icon{
+  width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;font-size:1.3rem;
+}
+.card-icon.purple{background:rgba(108,92,231,.15);color:var(--accent2)}
+.card-icon.green{background:rgba(0,206,201,.15);color:var(--green)}
+.card-icon.blue{background:rgba(116,185,255,.15);color:var(--blue)}
+.card-icon.orange{background:rgba(253,203,110,.15);color:var(--orange)}
+.card-icon.red{background:rgba(255,107,107,.15);color:var(--red)}
+.card h4{font-size:1rem;font-weight:700;margin-bottom:8px}
+.card p{font-size:.9rem;color:var(--text2);line-height:1.6}
+
+/* ── Metric Bars ── */
+.metric-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.metric-label{min-width:120px;font-size:.85rem;font-weight:600;color:var(--text2)}
+.metric-bar{flex:1;height:32px;background:var(--bg3);border-radius:6px;overflow:hidden;position:relative}
+.metric-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 12px;
+  font-size:.8rem;font-weight:700;font-family:var(--mono);color:#fff;transition:width 1.5s cubic-bezier(.22,1,.36,1);width:0}
+.metric-fill.green{background:linear-gradient(90deg,var(--green),var(--green2))}
+.metric-fill.purple{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.metric-fill.stripe{background:linear-gradient(90deg,var(--stripe),var(--stripe2))}
+
+/* ── Code Blocks (inline) ── */
+code{font-family:var(--mono);font-size:.85em;background:var(--bg3);padding:2px 8px;border-radius:4px}
+pre{
+  background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius-sm);
+  padding:20px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.8;
+  color:var(--text);margin:16px 0;
+}
+pre .kw{color:var(--accent2)}
+pre .fn{color:var(--green)}
+pre .str{color:var(--orange)}
+pre .num{color:var(--blue)}
+pre .cmt{color:var(--text3);font-style:italic}
+pre .op{color:var(--red)}
+
+/* ── Clickable file links ── */
+.file-link{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 12px;
+  background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.25);
+  border-radius:6px;font-family:var(--mono);font-size:.8rem;color:var(--accent2);
+  cursor:pointer;transition:all .2s;
+}
+.file-link:hover{background:rgba(108,92,231,.2);border-color:var(--accent)}
+.file-link svg{width:14px;height:14px;flex-shrink:0}
+
+/* ── Modal ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;
+  display:none;align-items:center;justify-content:center;padding:24px;
+  backdrop-filter:blur(4px);animation:fadeIn .2s;
+}
+.modal-overlay.active{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius);
+  max-width:900px;width:100%;max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);animation:slideUp .25s;
+}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;border-bottom:1px solid var(--card-border);flex-shrink:0;
+}
+.modal-header h3{font-size:1rem;font-family:var(--mono);color:var(--accent2)}
+.modal-close{
+  background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.2rem;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;transition:background .2s;
+}
+.modal-close:hover{background:var(--bg3);color:var(--text)}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-body pre{margin:0;border:none;background:transparent;padding:0}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--radius);margin:20px 0}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead{background:var(--bg3)}
+th{
+  padding:12px 16px;text-align:left;font-weight:600;color:var(--text2);
+  border-bottom:1px solid var(--card-border);cursor:pointer;white-space:nowrap;
+  user-select:none;position:relative;
+}
+th:hover{color:var(--text)}
+th .sort-arrow{font-size:.65rem;margin-left:4px;opacity:.4}
+th.sorted .sort-arrow{opacity:1;color:var(--accent2)}
+td{padding:10px 16px;border-bottom:1px solid rgba(42,42,68,.5);color:var(--text2)}
+tr:hover td{background:rgba(108,92,231,.04)}
+.badge{
+  display:inline-block;padding:2px 10px;border-radius:100px;font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.badge.pass{background:rgba(0,206,201,.15);color:var(--green)}
+.badge.fail{background:rgba(255,107,107,.15);color:var(--red)}
+
+/* ── Timeline ── */
+.timeline{position:relative;padding-left:32px;margin:24px 0}
+.timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:var(--bg4)}
+.tl-item{position:relative;margin-bottom:32px}
+.tl-dot{
+  position:absolute;left:-32px;top:4px;width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--accent);background:var(--bg);display:flex;align-items:center;justify-content:center;
+}
+.tl-dot.done{background:var(--green);border-color:var(--green)}
+.tl-dot.done::after{content:'✓';font-size:.65rem;color:#000;font-weight:900}
+.tl-dot.issue{background:var(--orange);border-color:var(--orange)}
+.tl-dot.issue::after{content:'!';font-size:.7rem;color:#000;font-weight:900}
+.tl-phase{font-size:.75rem;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.tl-title{font-size:1rem;font-weight:700;margin:4px 0}
+.tl-desc{font-size:.88rem;color:var(--text2)}
+
+/* ── State Machine Diagram ── */
+.state-diagram{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;
+  padding:32px;margin:24px 0;background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius);
+}
+.state-node{
+  padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:.8rem;font-weight:600;
+  border:2px solid;text-align:center;
+}
+.state-node.init{border-color:var(--blue);color:var(--blue);background:rgba(116,185,255,.08)}
+.state-node.mid{border-color:var(--orange);color:var(--orange);background:rgba(253,203,110,.08)}
+.state-node.final{border-color:var(--green);color:var(--green);background:rgba(0,206,201,.08)}
+.state-node.cancel{border-color:var(--red);color:var(--red);background:rgba(255,107,107,.08)}
+.state-arrow{font-size:1.2rem;color:var(--text3)}
+
+/* ── Nav ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,10,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid transparent;
+  transition:border-color .3s;
+}
+nav.scrolled{border-color:var(--card-border)}
+nav .logo{font-weight:800;font-size:1rem;color:#fff;display:flex;align-items:center;gap:8px}
+nav .logo svg{width:20px;height:20px}
+nav ul{
+  list-style:none;display:flex;gap:10px;align-items:center;
+  position:relative;padding:6px;border-radius:999px;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+nav .nav-indicator{
+  position:absolute;top:0;left:0;height:0;width:0;
+  border-radius:999px;pointer-events:none;opacity:0;z-index:0;
+  background:linear-gradient(135deg,rgba(108,92,231,.16),rgba(108,92,231,.1) 55%,rgba(0,206,201,.1));
+  border:1px solid rgba(162,155,254,.22);
+  box-shadow:0 8px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.05);
+  transform:translate3d(0,0,0);
+  transition:
+    transform .5s cubic-bezier(.22,1,.36,1),
+    width .5s cubic-bezier(.22,1,.36,1),
+    height .5s cubic-bezier(.22,1,.36,1),
+    opacity .3s ease,
+    border-color .35s cubic-bezier(.22,1,.36,1),
+    box-shadow .35s cubic-bezier(.22,1,.36,1);
+}
+nav .nav-indicator.visible{opacity:1}
+nav a{
+  font-size:.82rem;font-weight:500;color:var(--text2);position:relative;
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:36px;padding:8px 16px;border-radius:999px;isolation:isolate;z-index:1;
+  line-height:1;text-align:center;white-space:nowrap;
+  transition:color .35s cubic-bezier(.22,1,.36,1),text-shadow .35s cubic-bezier(.22,1,.36,1);
+}
+nav a::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;z-index:-1;
+  background:rgba(255,255,255,.03);
+  opacity:0;transform:scale(.98);
+  transition:opacity .28s ease,transform .35s cubic-bezier(.22,1,.36,1);
+}
+nav a:hover{color:#f6f5ff}
+nav a:hover::before{opacity:1;transform:scale(1)}
+nav a.active{color:#fff;text-shadow:0 0 14px rgba(162,155,254,.12)}
+nav a.active::before{opacity:0;transform:scale(1)}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  nav ul{display:none}
+  .hero-stats{gap:24px}
+  .hero-stat .num{font-size:2rem}
+  h2{font-size:1.7rem}
+  section{padding:48px 0}
+  .card-grid.cols-3{grid-template-columns:1fr}
+}
+
+/* ── Divider ── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--card-border),transparent);margin:0}
+
+/* ── Animate on scroll ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── Tag list ── */
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.tag{
+  padding:4px 14px;border-radius:100px;font-size:.75rem;font-weight:600;
+  background:var(--bg3);color:var(--text2);border:1px solid var(--card-border);
+}
+
+/* ── Donut chart ── */
+.donut-wrap{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.donut{width:160px;height:160px;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut circle{fill:none;stroke-width:12;stroke-linecap:round}
+.donut .bg{stroke:var(--bg4)}
+.donut .fg{stroke:var(--green);transition:stroke-dashoffset 1.5s cubic-bezier(.22,1,.36,1)}
+.donut .center{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.donut .center .val{font-size:2rem;font-weight:900;font-family:var(--mono)}
+.donut .center .lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav id="topnav">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Stripe Emulator
+  </div>
+  <ul>
+    <span class="nav-indicator" aria-hidden="true"></span>
+    <li><a href="#thesis">Thesis</a></li>
+    <li><a href="#examples">Use Cases</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#diversity">Tests</a></li>
+    <li><a href="#codebase">Code</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> AI-Powered API Emulation</div>
+    <h1>Building a Stripe Emulator with AI Coding Agents</h1>
+    <p>How we used an AI coding workflow to build, test, and validate a PaymentIntents API emulator — then proved behavioral parity by running a curated 250-case snapshot against both the emulator and Stripe's live API.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num" data-count="250">0</span><span class="label">Test Cases</span></div>
+      <div class="hero-stat"><span class="num" data-count="100" data-suffix="%">0</span><span class="label">Pass Rate</span></div>
+      <div class="hero-stat"><span class="num" data-count="96.9" data-suffix="%">0</span><span class="label">Doc Coverage</span></div>
+      <div class="hero-stat"><span class="num" data-count="452">0</span><span class="label">Lines of Emulator</span></div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    Scroll to explore
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- ── Section 1: Thesis ── -->
+<div class="divider"></div>
+<section id="thesis">
+  <div class="container reveal">
+    <div class="section-label">The Thesis</div>
+    <h2>AI Agents Can Emulate APIs That Are Hard to Test</h2>
+    <p class="subtitle">Third-party APIs like Stripe, Twilio, and Plaid are critical to production systems — but testing against them is expensive, rate-limited, and non-deterministic. AI coding agents change that equation entirely.</p>
+    <div class="card-grid cols-2">
+      <div class="card">
+        <div class="card-icon purple">&#9889;</div>
+        <h4>The Problem</h4>
+        <p>Payment APIs enforce rate limits, require live credentials, return non-deterministic IDs and timestamps, and charge real money in production mode. Teams resort to mocking — but mocks drift from reality and miss edge cases.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">&#10003;</div>
+        <h4>The Solution</h4>
+        <p>An AI coding agent reads the official API documentation, builds a behavioral emulator, generates hundreds of test cases with full traceability, and validates parity by running the same suite against both the emulator and the real API.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 2: Real-Life Examples ── -->
+<div class="divider"></div>
+<section id="examples">
+  <div class="container reveal">
+    <div class="section-label">Where This Applies</div>
+    <h2>Real-World APIs That Are Hard to Test</h2>
+    <p class="subtitle">The technique demonstrated here — AI-driven emulation from documentation — is applicable to any API where live testing is impractical.</p>
+    <div class="card-grid cols-3">
+      <div class="card">
+        <div class="card-icon purple">&#128179;</div>
+        <h4>Payment Gateways</h4>
+        <p><strong>Stripe, PayPal, Adyen, Square</strong> — Complex state machines (authorize → capture → refund), idempotency requirements, webhook-driven flows. Testing requires sandbox credentials and has rate limits.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">&#128172;</div>
+        <h4>Communication APIs</h4>
+        <p><strong>Twilio, SendGrid, Vonage</strong> — Sending real SMS/emails in tests is costly and non-deterministic. Delivery status callbacks are hard to simulate without a local emulator.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">&#127974;</div>
+        <h4>Banking & Open Finance</h4>
+        <p><strong>Plaid, MX, Yodlee</strong> — Account linking flows, balance verification, transaction history. Production sandboxes have limited scenarios and stale data.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#9729;</div>
+        <h4>Cloud Infrastructure</h4>
+        <p><strong>AWS, GCP, Azure APIs</strong> — Provisioning resources for tests is slow and expensive. LocalStack exists for AWS, but coverage is always lagging. AI agents can fill the gap.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">&#128666;</div>
+        <h4>Logistics & Shipping</h4>
+        <p><strong>FedEx, UPS, DHL</strong> — Rate calculation, label generation, tracking webhooks. Sandbox environments are poorly maintained and often offline.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">&#128737;</div>
+        <h4>Identity Verification</h4>
+        <p><strong>Onfido, Jumio, Persona</strong> — Document verification flows require real documents in sandbox. An emulator can model the state transitions and response shapes without sensitive data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 3: Architecture ── -->
+<div class="divider"></div>
+<section id="architecture">
+  <div class="container reveal">
+    <div class="section-label">System Design</div>
+    <h2>Architecture of the Emulator</h2>
+    <p class="subtitle">A lightweight Python HTTP server that implements Stripe's PaymentIntents API subset, with a dual-target test harness for behavioral parity verification.</p>
+
+    <h3>PaymentIntent State Machine</h3>
+    <div class="state-diagram">
+      <div class="state-node init">requires_payment_method</div>
+      <div class="state-arrow">→ confirm →</div>
+      <div class="state-node mid">requires_capture</div>
+      <div class="state-arrow">→ capture →</div>
+      <div class="state-node final">succeeded</div>
+      <div style="width:100%;text-align:center;margin:8px 0">
+        <span class="state-arrow" style="font-size:.85rem">↓ cancel (from any cancelable state)</span>
+      </div>
+      <div class="state-node cancel">canceled</div>
+    </div>
+
+    <h3>Emulator Endpoints</h3>
+    <p style="color:var(--text2);font-size:.9rem;margin-bottom:16px">8 endpoints implementing the core PaymentIntents lifecycle. Click any file to view its source.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>GET</code></td><td><code>/health</code></td><td>Health check</td></tr>
+          <tr><td><code>GET</code></td><td><code>/v1/payment_intents</code></td><td>List intents with pagination</td></tr>
+          <tr><td><code>GET</code></td><td><code>/v1/payment_intents/{id}</code></td><td>Retrieve a specific intent</td></tr>
+          <tr><td><code>POST</code></td><td><code>/v1/payment_intents</code></td><td>Create a new intent</td></tr>
+          <tr><td><code>POST</code></td><td><code>/v1/payment_intents/{id}/confirm</code></td><td>Confirm with payment method</td></tr>
+          <tr><td><code>POST</code></td><td><code>/v1/payment_intents/{id}/cancel</code></td><td>Cancel with optional reason</td></tr>
+          <tr><td><code>POST</code></td><td><code>/v1/payment_intents/{id}/capture</code></td><td>Full or partial capture</td></tr>
+          <tr><td><code>POST</code></td><td><code>/v1/refunds</code></td><td>Create full or partial refund</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:32px">Dual-Target Test Architecture</h3>
+    <pre><span class="cmt">  ┌─────────────────────────────────────────────────────┐</span>
+<span class="cmt">  │</span>          <span class="fn">250 Generated Test Cases</span> (JSON)            <span class="cmt">│</span>
+<span class="cmt">  │</span>     <span class="str">test-cases/generated/payment_intents_cases.json</span>  <span class="cmt">│</span>
+<span class="cmt">  └──────────────────────┬──────────────────────────────┘</span>
+                         <span class="cmt">│</span>
+              <span class="cmt">┌──────────┴──────────┐</span>
+              <span class="cmt">│</span>                     <span class="cmt">│</span>
+      <span class="kw">TARGET=stripe</span>          <span class="kw">TARGET=emulator</span>
+              <span class="cmt">│</span>                     <span class="cmt">│</span>
+    <span class="fn">api.stripe.com</span>       <span class="fn">localhost:8000</span>
+              <span class="cmt">│</span>                     <span class="cmt">│</span>
+              <span class="cmt">└──────────┬──────────┘</span>
+                         <span class="cmt">│</span>
+              <span class="str">Identical Assertions</span>
+              <span class="str">JSONL Result Logging</span>
+              <span class="str">Pass-Rate Comparison</span></pre>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px">
+      <span class="file-link" onclick="showModal('emulator/app.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        emulator/app.py
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/http_client.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        test-cases/harness/http_client.py
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/case_runner.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        test-cases/harness/case_runner.py
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/conftest.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        test-cases/harness/conftest.py
+      </span>
+      <span class="file-link" onclick="showModal('scripts/phase2_generate_cases.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        scripts/phase2_generate_cases.py
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 4: Process ── -->
+<div class="divider"></div>
+<section id="process">
+  <div class="container reveal">
+    <div class="section-label">The Journey</div>
+    <h2>How We Built It — What Worked & What Failed</h2>
+    <p class="subtitle">An 8-phase plan executed by an AI coding agent, from documentation ingestion to a fully validated emulator.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 0 — Setup</div>
+        <div class="tl-title">Project scaffold and guardrails</div>
+        <div class="tl-desc">Created the repo structure: <code>emulator/</code>, <code>test-cases/</code>, <code>scripts/</code>, <code>artifacts/</code>, <code>docs/</code>. Configured environment handling for Stripe credentials, deterministic seeding, and retry logic.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 1 — Doc Ingestion</div>
+        <div class="tl-title">Extracted 1,891 sentences from 11 Stripe doc pages</div>
+        <div class="tl-desc">Parsed official Stripe documentation, split into sentence-level requirement units with stable IDs (REQ00001–REQ01891), and categorized into create/confirm/cancel/capture/refund/idempotency/errors. Narrowed to 577 core scope sentences.
+          <span class="file-link" onclick="showModal('docs/requirements/traceability_scope_core.csv','csv')" style="margin-top:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            traceability_scope_core.csv
+          </span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 2 — Test Generation</div>
+        <div class="tl-title">Generated 250 multi-step test cases from requirements</div>
+        <div class="tl-desc">Deterministic generation (seed=42) producing 16 test categories covering happy paths, validation errors, state transitions, idempotency, partial captures, and refund edge cases. Each case has 2–5 steps with variable chaining.
+          <span class="file-link" onclick="showModal('test-cases/generated/payment_intents_cases.json','json')" style="margin-top:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            payment_intents_cases.json
+          </span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 3 — Dual-Target Harness</div>
+        <div class="tl-title">Built identical test runner for Stripe & emulator</div>
+        <div class="tl-desc">A single <code>ApiClient</code> class handles both targets — only the base URL and auth differ. Identical assertion logic, JSONL logging, and automatic retries with exponential backoff for transient failures.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 4 — Emulator Build</div>
+        <div class="tl-title">452 lines of Python implementing 8 endpoints</div>
+        <div class="tl-desc">Pure-Python <code>ThreadingHTTPServer</code> — no frameworks, no dependencies. Implements the full PaymentIntent lifecycle: create, confirm, cancel, capture, refund. Plus idempotency key support, currency/amount validation, and state machine enforcement.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 5 — Red/Green Alignment</div>
+        <div class="tl-title">Iterative debugging — what failed and what we fixed</div>
+        <div class="tl-desc">
+          <strong>What worked:</strong> Create, confirm, cancel, full capture, and idempotency passed on first alignment run.<br>
+          <strong>What failed initially:</strong> Partial capture state transitions. The emulator was always transitioning to <code>succeeded</code> after any capture, but Stripe keeps <code>requires_capture</code> when <code>final_capture=false</code> and amount remains. Fixed by adding <code>final_capture</code> flag logic, then validated on a clean final snapshot.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 6 — Metrics</div>
+        <div class="tl-title">96.9% documentation coverage, 100% combined pass rate</div>
+        <div class="tl-desc">Computed pass rates by target, doc sentence coverage, and generated machine-readable reports.
+          <span class="file-link" onclick="showModal('artifacts/reports/pass_rate_summary.json','json')" style="margin-top:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            pass_rate_summary.json
+          </span>
+          <span class="file-link" onclick="showModal('artifacts/reports/doc_coverage_report.json','json')" style="margin-top:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            doc_coverage_report.json
+          </span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-phase">Phase 7–8 — Story & Packaging</div>
+        <div class="tl-title">Data story, demo runbook, and reproducible artifacts</div>
+        <div class="tl-desc">Built this interactive data story, final packaged repo with all logs, reports, and reproducible demo commands.
+          <span class="file-link" onclick="showModal('plan.md','markdown')" style="margin-top:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            plan.md
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 5: Results ── -->
+<div class="divider"></div>
+<section id="results">
+  <div class="container reveal">
+    <div class="section-label">The Numbers</div>
+    <h2>Test Results — Verified Against Stripe</h2>
+    <p class="subtitle">A curated final snapshot of 248 generated test cases plus 2 smoke tests ran against both targets. Here are the results.</p>
+
+    <div class="card-grid cols-2" style="margin-bottom:40px">
+      <div class="card" style="text-align:center">
+        <div style="font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Stripe Live API (Test Mode)</div>
+        <div style="font-size:3.5rem;font-weight:900;font-family:var(--mono);color:var(--green)">100%</div>
+        <div style="font-size:.9rem;color:var(--text2);margin-top:4px">250 / 250 cases passed</div>
+        <span class="file-link" onclick="showModal('artifacts/logs/latest_run_stripe.jsonl','jsonl')" style="margin-top:16px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          View Stripe run logs
+        </span>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Local Emulator</div>
+        <div style="font-size:3.5rem;font-weight:900;font-family:var(--mono);color:var(--green)">100%</div>
+        <div style="font-size:.9rem;color:var(--text2);margin-top:4px">250 / 250 cases passed</div>
+        <span class="file-link" onclick="showModal('artifacts/logs/latest_run_emulator.jsonl','jsonl')" style="margin-top:16px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          View emulator run logs
+        </span>
+      </div>
+    </div>
+
+    <h3>Pass Rate Comparison</h3>
+    <div class="metric-row">
+      <div class="metric-label">Stripe API</div>
+      <div class="metric-bar"><div class="metric-fill green" data-width="100">100%</div></div>
+    </div>
+    <div class="metric-row">
+      <div class="metric-label">Emulator</div>
+      <div class="metric-bar"><div class="metric-fill green" data-width="100">100%</div></div>
+    </div>
+    <div class="metric-row">
+      <div class="metric-label">Doc Coverage</div>
+      <div class="metric-bar"><div class="metric-fill purple" data-width="96.88">96.9%</div></div>
+    </div>
+
+    <div class="card" style="margin-top:32px;border-color:rgba(0,206,201,.3)">
+      <h4 style="color:var(--green)">Final Snapshot</h4>
+      <p style="margin-bottom:0">The data story now points at the curated final snapshot: 250 of 250 cases passed on Stripe and 250 of 250 cases passed on the emulator.</p>
+    </div>
+
+    <h3 style="margin-top:40px">Documentation Coverage</h3>
+    <div class="donut-wrap">
+      <div class="donut">
+        <svg viewBox="0 0 160 160">
+          <circle class="bg" cx="80" cy="80" r="60" />
+          <circle class="fg" cx="80" cy="80" r="60" stroke-dasharray="377" stroke-dashoffset="377" data-target="11.8" />
+        </svg>
+        <div class="center">
+          <span class="val" style="color:var(--green)">96.9%</span>
+          <span class="lbl">Covered</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:.9rem;color:var(--text2);margin-bottom:8px"><strong style="color:var(--text)">559 of 577</strong> documentation sentences are exercised by at least one test case.</p>
+        <p style="font-size:.9rem;color:var(--text2);margin-bottom:8px"><strong style="color:var(--text)">1,512</strong> total test-to-doc mappings across the traceability matrix.</p>
+        <p style="font-size:.9rem;color:var(--text2)"><strong style="color:var(--text)">18 uncovered</strong> sentences relate to advanced edge cases outside the PaymentIntents core flow.</p>
+        <span class="file-link" onclick="showModal('docs/requirements/test_case_traceability.csv','csv')" style="margin-top:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          test_case_traceability.csv
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 6: Test Diversity ── -->
+<div class="divider"></div>
+<section id="diversity">
+  <div class="container reveal">
+    <div class="section-label">Test Diversity</div>
+    <h2>250 Cases Across 16 Scenarios</h2>
+    <p class="subtitle">Tests span the full PaymentIntents lifecycle — from happy-path creation to idempotency conflicts, partial captures, and refund edge cases.</p>
+
+    <div class="table-wrap">
+      <table id="diversity-table">
+        <thead>
+          <tr>
+            <th>Category <span class="sort-arrow">&#9650;</span></th>
+            <th>Count <span class="sort-arrow">&#9650;</span></th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>CREATE_OK</code></td><td>40</td><td>Happy-path creates with varying amounts, currencies (USD/EUR/GBP/CAD/AUD/SGD/JPY), and capture methods</td></tr>
+          <tr><td><code>CREATE_ERR</code></td><td>35</td><td>Validation errors — missing amount, invalid currency, out-of-range values, invalid capture_method</td></tr>
+          <tr><td><code>CONFIRM_AUTO</code></td><td>20</td><td>Automatic capture confirmation flows (create → confirm → status=succeeded)</td></tr>
+          <tr><td><code>CONFIRM_MANUAL</code></td><td>20</td><td>Manual capture confirmation flows (create → confirm → status=requires_capture)</td></tr>
+          <tr><td><code>CAPTURE_PARTIAL</code></td><td>20</td><td>Two-part partial capture sequences with amount_to_capture</td></tr>
+          <tr><td><code>CAPTURE_FULL</code></td><td>15</td><td>Full capture of manual-capture intents</td></tr>
+          <tr><td><code>CAPTURE_ERR</code></td><td>10</td><td>Capture errors — over-limit amounts, invalid state transitions</td></tr>
+          <tr><td><code>CANCEL_REASON</code></td><td>10</td><td>Cancellation with reason values: requested_by_customer, abandoned, duplicate, fraudulent</td></tr>
+          <tr><td><code>CANCEL_CAPTURE</code></td><td>10</td><td>Cancel from requires_capture state after manual-capture confirm</td></tr>
+          <tr><td><code>CANCEL_ERR</code></td><td>10</td><td>Double-cancel error handling (already canceled intent)</td></tr>
+          <tr><td><code>REFUND_FULL</code></td><td>10</td><td>Full refund by payment_intent reference</td></tr>
+          <tr><td><code>REFUND_PARTIAL</code></td><td>10</td><td>Three-part partial refund sequences</td></tr>
+          <tr><td><code>REFUND_ERR</code></td><td>15</td><td>Over-refund and invalid reference errors</td></tr>
+          <tr><td><code>IDEMPOTENCY_SAME</code></td><td>10</td><td>Same Idempotency-Key with same payload → cached response</td></tr>
+          <tr><td><code>IDEMPOTENCY_ERR</code></td><td>10</td><td>Same Idempotency-Key with different payload → 400 conflict</td></tr>
+          <tr><td><code>LIST_RETRIEVE</code></td><td>5</td><td>List/retrieve consistency checks</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:32px">Test Features</h3>
+    <div class="tag-list">
+      <span class="tag">Multi-step (2–5 steps per case)</span>
+      <span class="tag">Variable chaining ({{pi_id}})</span>
+      <span class="tag">7 currencies tested</span>
+      <span class="tag">3 capture methods</span>
+      <span class="tag">10+ assertion types</span>
+      <span class="tag">Idempotency-Key support</span>
+      <span class="tag">Partial capture amounts</span>
+      <span class="tag">Partial refund sequences</span>
+      <span class="tag">Error validation (400/404)</span>
+      <span class="tag">State machine enforcement</span>
+      <span class="tag">Cancellation reasons</span>
+      <span class="tag">Deterministic seed (42)</span>
+    </div>
+
+    <h3 style="margin-top:32px">Assertion Types Used</h3>
+    <div class="card-grid cols-3">
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">status_code</code>
+        <p style="margin-top:4px">Exact HTTP status match</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">equals</code>
+        <p style="margin-top:4px">Exact field value match</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">in</code>
+        <p style="margin-top:4px">Value in allowed set</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">prefix</code>
+        <p style="margin-top:4px">String prefix (e.g. pi_)</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">gte / lte</code>
+        <p style="margin-top:4px">Numeric range checks</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">context_equals</code>
+        <p style="margin-top:4px">Cross-step variable match</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">exists</code>
+        <p style="margin-top:4px">Field presence check</p>
+      </div>
+      <div class="card" style="padding:16px">
+        <code style="color:var(--green)">status_code_in</code>
+        <p style="margin-top:4px">Status in allowed list</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 7: Codebase Explorer ── -->
+<div class="divider"></div>
+<section id="codebase">
+  <div class="container reveal">
+    <div class="section-label">Explore the Code</div>
+    <h2>Full Codebase — Click to View</h2>
+    <p class="subtitle">Every file in the project. Click any item to open a syntax-highlighted viewer.</p>
+
+    <h3>Core Emulator</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      <span class="file-link" onclick="showModal('emulator/app.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        emulator/app.py <span style="color:var(--text3);font-size:.7rem">(452 lines)</span>
+      </span>
+    </div>
+
+    <h3>Test Harness</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      <span class="file-link" onclick="showModal('test-cases/harness/http_client.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        http_client.py <span style="color:var(--text3);font-size:.7rem">(90 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/case_runner.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        case_runner.py <span style="color:var(--text3);font-size:.7rem">(155 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/config.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        config.py <span style="color:var(--text3);font-size:.7rem">(67 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/conftest.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        conftest.py <span style="color:var(--text3);font-size:.7rem">(40 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/result_logger.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        result_logger.py <span style="color:var(--text3);font-size:.7rem">(52 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/test_smoke.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        test_smoke.py <span style="color:var(--text3);font-size:.7rem">(74 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('test-cases/harness/test_generated_suite.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        test_generated_suite.py <span style="color:var(--text3);font-size:.7rem">(51 lines)</span>
+      </span>
+    </div>
+
+    <h3>Scripts &amp; Automation</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      <span class="file-link" onclick="showModal('scripts/phase2_generate_cases.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        phase2_generate_cases.py <span style="color:var(--text3);font-size:.7rem">(667 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('scripts/run_dual_target_suite.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        run_dual_target_suite.py <span style="color:var(--text3);font-size:.7rem">(92 lines)</span>
+      </span>
+      <span class="file-link" onclick="showModal('scripts/phase0_smoke.py','python')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        phase0_smoke.py <span style="color:var(--text3);font-size:.7rem">(69 lines)</span>
+      </span>
+    </div>
+
+    <h3>Reports &amp; Logs</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      <span class="file-link" onclick="showModal('artifacts/reports/pass_rate_summary.json','json')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        pass_rate_summary.json
+      </span>
+      <span class="file-link" onclick="showModal('artifacts/reports/doc_coverage_report.json','json')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        doc_coverage_report.json
+      </span>
+      <span class="file-link" onclick="showModal('artifacts/logs/latest_run_stripe.jsonl','jsonl')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        latest_run_stripe.jsonl
+      </span>
+      <span class="file-link" onclick="showModal('artifacts/logs/latest_run_emulator.jsonl','jsonl')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        latest_run_emulator.jsonl
+      </span>
+    </div>
+
+    <h3>Documentation &amp; Planning</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      <span class="file-link" onclick="showModal('plan.md','markdown')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        plan.md
+      </span>
+      <span class="file-link" onclick="showModal('docs/requirements/traceability_scope_core.csv','csv')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        traceability_scope_core.csv
+      </span>
+      <span class="file-link" onclick="showModal('docs/requirements/test_case_traceability.csv','csv')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        test_case_traceability.csv
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 8: Run It Yourself ── -->
+<div class="divider"></div>
+<section id="run">
+  <div class="container reveal">
+    <div class="section-label">Reproducible</div>
+    <h2>Run It Yourself</h2>
+    <p class="subtitle">Clone the repo and run the full dual-target suite in under 3 minutes.</p>
+    <pre><span class="cmt"># Clone and install</span>
+<span class="fn">git clone</span> https://github.com/your-org/stripe-payment-simulator.git
+<span class="fn">cd</span> stripe-payment-simulator
+<span class="fn">pip install</span> -r requirements-dev.txt
+
+<span class="cmt"># Quick smoke test (starts emulator automatically)</span>
+<span class="fn">python</span> scripts/phase0_smoke.py
+
+<span class="cmt"># Full dual-target run (Stripe + Emulator)</span>
+<span class="fn">export</span> <span class="kw">STRIPE_API_KEY</span>=<span class="str">sk_test_...</span>
+<span class="fn">python</span> scripts/run_dual_target_suite.py
+
+<span class="cmt"># Or run targets individually</span>
+<span class="fn">python</span> emulator/app.py &amp;          <span class="cmt"># Start emulator</span>
+<span class="kw">TARGET</span>=emulator <span class="fn">python</span> -m pytest test-cases/harness -q
+<span class="kw">TARGET</span>=stripe   <span class="fn">python</span> -m pytest test-cases/harness -q</pre>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<div class="divider"></div>
+<footer style="padding:48px 0;text-align:center">
+  <div class="container">
+    <p style="color:var(--text3);font-size:.85rem">Built with AI coding agents. 250 tests. 100% pass rate. 96.9% documentation coverage.</p>
+    <p style="color:var(--text3);font-size:.75rem;margin-top:8px">Stripe Payment Simulator &mdash; A data story demonstrating AI-driven API emulation.</p>
+  </div>
+</footer>
+
+<!-- ── Modal Container ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title">File</h3>
+      <button class="modal-close" onclick="closeModalForce()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── Scroll animations ──
+const nav = document.getElementById('topnav');
+const navList = document.querySelector('#topnav ul');
+const navIndicator = document.querySelector('#topnav .nav-indicator');
+const navLinks = Array.from(document.querySelectorAll('#topnav a[href^="#"]'));
+const observedSections = navLinks
+  .map(link => document.querySelector(link.getAttribute('href')))
+  .filter(Boolean);
+
+function moveNavIndicator(link) {
+  if (!navList || !navIndicator || !link) return;
+  const listRect = navList.getBoundingClientRect();
+  const linkRect = link.getBoundingClientRect();
+  navIndicator.style.width = `${linkRect.width}px`;
+  navIndicator.style.height = `${linkRect.height}px`;
+  navIndicator.style.transform = `translate3d(${linkRect.left - listRect.left}px, ${linkRect.top - listRect.top}px, 0)`;
+  navIndicator.classList.add('visible');
+}
+
+function setActiveNav(sectionId) {
+  let activeLink = null;
+  navLinks.forEach(link => {
+    const isActive = link.getAttribute('href') === `#${sectionId}`;
+    link.classList.toggle('active', isActive);
+    if (isActive) {
+      activeLink = link;
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
+  });
+  if (activeLink) moveNavIndicator(activeLink);
+}
+
+function getActiveSectionId() {
+  if (!observedSections.length) return null;
+  const probeY = window.scrollY + nav.offsetHeight + window.innerHeight * 0.28;
+  let activeSectionId = observedSections[0].id;
+  observedSections.forEach(section => {
+    if (section.offsetTop <= probeY) {
+      activeSectionId = section.id;
+    }
+  });
+  return activeSectionId;
+}
+
+let navTicking = false;
+function updateNavState() {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+  const activeSectionId = getActiveSectionId();
+  if (activeSectionId) setActiveNav(activeSectionId);
+  navTicking = false;
+}
+
+function queueNavUpdate() {
+  if (navTicking) return;
+  navTicking = true;
+  window.requestAnimationFrame(updateNavState);
+}
+
+window.addEventListener('scroll', queueNavUpdate, { passive: true });
+window.addEventListener('resize', queueNavUpdate);
+window.addEventListener('load', queueNavUpdate);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => queueNavUpdate());
+}
+if (observedSections.length) {
+  setActiveNav(observedSections[0].id);
+  queueNavUpdate();
+}
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    const targetId = link.getAttribute('href').slice(1);
+    setActiveNav(targetId);
+    queueNavUpdate();
+  });
+});
+
+// ── Reveal on scroll ──
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+reveals.forEach(el => revealObserver.observe(el));
+
+// ── Animate metric bars ──
+const bars = document.querySelectorAll('.metric-fill');
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.width = e.target.dataset.width + '%';
+    }
+  });
+}, { threshold: 0.3 });
+bars.forEach(el => barObserver.observe(el));
+
+// ── Animate donut ──
+const donutFg = document.querySelector('.donut .fg');
+if (donutFg) {
+  const donutObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const offset = parseFloat(donutFg.dataset.target);
+        donutFg.style.strokeDashoffset = offset;
+      }
+    });
+  }, { threshold: 0.3 });
+  donutObs.observe(donutFg);
+}
+
+// ── Counter animation ──
+const counters = document.querySelectorAll('.hero-stat .num');
+let counterDone = false;
+const counterObs = new IntersectionObserver((entries) => {
+  if (counterDone) return;
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      counterDone = true;
+      counters.forEach(el => {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        const isFloat = target % 1 !== 0;
+        let current = 0;
+        const step = target / 60;
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = (isFloat ? current.toFixed(1) : Math.floor(current)) + suffix;
+        }, 16);
+      });
+    }
+  });
+}, { threshold: 0.5 });
+if (counters.length) counterObs.observe(counters[0]);
+
+// ── Table sorting ──
+document.querySelectorAll('#diversity-table th').forEach((th, idx) => {
+  let asc = true;
+  th.addEventListener('click', () => {
+    const tbody = th.closest('table').querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+      const aVal = a.children[idx].textContent.trim();
+      const bVal = b.children[idx].textContent.trim();
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      if (!isNaN(aNum) && !isNaN(bNum)) return asc ? aNum - bNum : bNum - aNum;
+      return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+    rows.forEach(r => tbody.appendChild(r));
+    asc = !asc;
+    th.closest('thead').querySelectorAll('th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+  });
+});
+
+// ── Modal system ──
+// Determine the base URL for fetching files from the repository
+function getRepoBase() {
+  // When deployed on GitHub Pages, files are accessible relative to the root
+  // When local, also relative
+  return './';
+}
+
+function showModal(filePath, fileType) {
+  const overlay = document.getElementById('modal-overlay');
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  title.textContent = filePath;
+  body.innerHTML = '<p style="color:var(--text3);padding:40px;text-align:center">Loading...</p>';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  fetch(getRepoBase() + filePath)
+    .then(r => {
+      if (!r.ok) throw new Error('File not found');
+      return r.text();
+    })
+    .then(text => {
+      if (fileType === 'csv') {
+        body.innerHTML = renderCSV(text);
+      } else if (fileType === 'jsonl') {
+        body.innerHTML = renderJSONL(text);
+      } else if (fileType === 'json') {
+        body.innerHTML = '<pre>' + highlightJSON(text) + '</pre>';
+      } else if (fileType === 'markdown') {
+        body.innerHTML = '<pre>' + escapeHTML(text) + '</pre>';
+      } else {
+        body.innerHTML = '<pre>' + highlightPython(text) + '</pre>';
+      }
+    })
+    .catch(() => {
+      body.innerHTML = `<p style="color:var(--text2);padding:40px;text-align:center">
+        This file is part of the repository.<br>
+        <a href="https://github.com/" target="_blank" style="margin-top:8px;display:inline-block">View on GitHub →</a><br><br>
+        <small style="color:var(--text3)">Path: ${escapeHTML(filePath)}</small>
+      </p>`;
+    });
+}
+
+function closeModal(e) {
+  if (e.target === e.currentTarget) closeModalForce();
+}
+function closeModalForce() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalForce(); });
+
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightPython(code) {
+  code = escapeHTML(code);
+  // Keywords
+  code = code.replace(/\b(import|from|def|class|return|if|elif|else|for|while|in|not|and|or|is|None|True|False|try|except|raise|with|as|yield|lambda|pass|break|continue|finally|global|nonlocal|assert|del)\b/g, '<span class="kw">$1</span>');
+  // Strings
+  code = code.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="str">$1</span>');
+  // Comments
+  code = code.replace(/(#.*$)/gm, '<span class="cmt">$1</span>');
+  // Numbers
+  code = code.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+  // Function defs
+  code = code.replace(/\b(def\s+)(\w+)/g, '$1<span class="fn">$2</span>');
+  return code;
+}
+
+function highlightJSON(text) {
+  try {
+    const obj = JSON.parse(text);
+    text = JSON.stringify(obj, null, 2);
+  } catch(e) {}
+  text = escapeHTML(text);
+  text = text.replace(/"([^"]+)":/g, '<span class="kw">"$1"</span>:');
+  text = text.replace(/: "([^"]*)"/g, ': <span class="str">"$1"</span>');
+  text = text.replace(/: (\d+\.?\d*)/g, ': <span class="num">$1</span>');
+  text = text.replace(/: (true|false|null)/g, ': <span class="kw">$1</span>');
+  return text;
+}
+
+function renderCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length === 0) return '<p>Empty file</p>';
+  // Simple CSV parse (handles basic cases)
+  const parse = line => {
+    const result = [];
+    let current = '', inQuote = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuote = !inQuote; continue; }
+      if (ch === ',' && !inQuote) { result.push(current.trim()); current = ''; continue; }
+      current += ch;
+    }
+    result.push(current.trim());
+    return result;
+  };
+  const headers = parse(lines[0]);
+  const maxRows = Math.min(lines.length, 101); // Show first 100 data rows
+  let html = '<div class="table-wrap" style="margin:0"><table><thead><tr>';
+  headers.forEach(h => html += `<th>${escapeHTML(h)}</th>`);
+  html += '</tr></thead><tbody>';
+  for (let i = 1; i < maxRows; i++) {
+    const cols = parse(lines[i]);
+    html += '<tr>';
+    cols.forEach(c => html += `<td>${escapeHTML(c.substring(0, 120))}</td>`);
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  if (lines.length > 101) {
+    html += `<p style="color:var(--text3);font-size:.8rem;margin-top:8px;text-align:center">Showing first 100 of ${lines.length - 1} rows</p>`;
+  }
+  return html;
+}
+
+function renderJSONL(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  // Parse to extract summary table
+  const records = [];
+  for (let i = 0; i < lines.length; i++) {
+    try {
+      const obj = JSON.parse(lines[i]);
+      records.push(obj);
+    } catch(e) {}
+  }
+  if (records.length === 0) return '<pre>' + escapeHTML(text.substring(0, 5000)) + '</pre>';
+
+  // Show as sortable table
+  let html = '<div class="table-wrap" style="margin:0"><table><thead><tr>';
+  html += '<th>Case ID</th><th>Step</th><th>Method</th><th>Path</th><th>Status</th><th>Passed</th><th>Duration</th>';
+  html += '</tr></thead><tbody>';
+  records.forEach(r => {
+    const passed = r.passed;
+    html += '<tr>';
+    html += `<td><code style="font-size:.72rem">${escapeHTML(r.case_id || '')}</code></td>`;
+    html += `<td>${escapeHTML(String(r.step_index || ''))}</td>`;
+    html += `<td><code>${escapeHTML((r.request && r.request.method) || '')}</code></td>`;
+    html += `<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis"><code style="font-size:.72rem">${escapeHTML((r.request && r.request.path) || '')}</code></td>`;
+    html += `<td><code>${(r.response && r.response.status_code) || ''}</code></td>`;
+    html += `<td><span class="badge ${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span></td>`;
+    html += `<td>${r.duration_ms || 0}ms</td>`;
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += `<p style="color:var(--text3);font-size:.8rem;margin-top:8px;text-align:center">Showing all ${records.length} log entries</p>`;
+  return html;
+}
+</script>
+</body>
+</html>

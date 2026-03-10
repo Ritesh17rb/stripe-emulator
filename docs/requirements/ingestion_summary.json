@@ -1,0 +1,90 @@
+{
+  "generated_at_utc": "2026-03-08T05:52:13.142204Z",
+  "source_count": 11,
+  "requirement_sentence_count": 1891,
+  "documents": [
+    {
+      "doc_id": "DOC001",
+      "source_url": "https://docs.stripe.com/api/payment_intents",
+      "markdown_url": "https://docs.stripe.com/api/payment_intents.md",
+      "raw_markdown_file": "docs/raw/01_docs_stripe_com_api_payment_intents.md",
+      "sentence_count": 4
+    },
+    {
+      "doc_id": "DOC002",
+      "source_url": "https://docs.stripe.com/api/payment_intents/create",
+      "markdown_url": "https://docs.stripe.com/api/payment_intents/create.md",
+      "raw_markdown_file": "docs/raw/02_docs_stripe_com_api_payment_intents_create.md",
+      "sentence_count": 560
+    },
+    {
+      "doc_id": "DOC003",
+      "source_url": "https://docs.stripe.com/api/payment_intents/confirm",
+      "markdown_url": "https://docs.stripe.com/api/payment_intents/confirm.md",
+      "raw_markdown_file": "docs/raw/03_docs_stripe_com_api_payment_intents_confirm.md",
+      "sentence_count": 521
+    },
+    {
+      "doc_id": "DOC004",
+      "source_url": "https://docs.stripe.com/api/payment_intents/cancel",
+      "markdown_url": "https://docs.stripe.com/api/payment_intents/cancel.md",
+      "raw_markdown_file": "docs/raw/04_docs_stripe_com_api_payment_intents_cancel.md",
+      "sentence_count": 8
+    },
+    {
+      "doc_id": "DOC005",
+      "source_url": "https://docs.stripe.com/api/payment_intents/capture",
+      "markdown_url": "https://docs.stripe.com/api/payment_intents/capture.md",
+      "raw_markdown_file": "docs/raw/05_docs_stripe_com_api_payment_intents_capture.md",
+      "sentence_count": 96
+    },
+    {
+      "doc_id": "DOC006",
+      "source_url": "https://docs.stripe.com/api/refunds/create",
+      "markdown_url": "https://docs.stripe.com/api/refunds/create.md",
+      "raw_markdown_file": "docs/raw/06_docs_stripe_com_api_refunds_create.md",
+      "sentence_count": 30
+    },
+    {
+      "doc_id": "DOC007",
+      "source_url": "https://docs.stripe.com/payments/payment-intents",
+      "markdown_url": "https://docs.stripe.com/payments/payment-intents.md",
+      "raw_markdown_file": "docs/raw/07_docs_stripe_com_payments_payment_intents.md",
+      "sentence_count": 71
+    },
+    {
+      "doc_id": "DOC008",
+      "source_url": "https://docs.stripe.com/payments/payment-intents/verifying-status",
+      "markdown_url": "https://docs.stripe.com/payments/payment-intents/verifying-status.md",
+      "raw_markdown_file": "docs/raw/08_docs_stripe_com_payments_payment_intents_verifying_status.md",
+      "sentence_count": 31
+    },
+    {
+      "doc_id": "DOC009",
+      "source_url": "https://docs.stripe.com/error-handling",
+      "markdown_url": "https://docs.stripe.com/error-handling.md",
+      "raw_markdown_file": "docs/raw/09_docs_stripe_com_error_handling.md",
+      "sentence_count": 528
+    },
+    {
+      "doc_id": "DOC010",
+      "source_url": "https://docs.stripe.com/api/errors",
+      "markdown_url": "https://docs.stripe.com/api/errors.md",
+      "raw_markdown_file": "docs/raw/10_docs_stripe_com_api_errors.md",
+      "sentence_count": 25
+    },
+    {
+      "doc_id": "DOC011",
+      "source_url": "https://docs.stripe.com/api/idempotent_requests",
+      "markdown_url": "https://docs.stripe.com/api/idempotent_requests.md",
+      "raw_markdown_file": "docs/raw/11_docs_stripe_com_api_idempotent_requests.md",
+      "sentence_count": 17
+    }
+  ],
+  "output_files": [
+    "docs/requirements/traceability_seed.csv",
+    "docs/traceability_matrix.csv",
+    "docs/requirements/traceability_scope_core.csv"
+  ],
+  "core_scope_sentence_count": 577
+}
