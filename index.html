@@ -307,6 +307,405 @@ nav a.active::before{opacity:0;transform:scale(1)}
 }
 .donut .center .val{font-size:2rem;font-weight:900;font-family:var(--mono)}
 .donut .center .lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+
+/* ── Terminal Replay (Asciinema-style) ── */
+.terminal{
+  background:#0d1117;border:1px solid var(--card-border);border-radius:var(--radius);
+  overflow:hidden;margin:24px 0;box-shadow:var(--shadow);
+}
+.terminal-header{
+  display:flex;align-items:center;gap:8px;padding:10px 16px;
+  background:#161b22;border-bottom:1px solid var(--card-border);
+}
+.terminal-dot{width:12px;height:12px;border-radius:50%}
+.terminal-dot.r{background:#ff5f56}.terminal-dot.y{background:#ffbd2e}.terminal-dot.g{background:#27c93f}
+.terminal-title{margin-left:8px;font-size:.75rem;color:var(--text3);font-family:var(--mono)}
+.terminal-body{
+  padding:16px 20px;font-family:var(--mono);font-size:.78rem;line-height:2;
+  color:#c9d1d9;min-height:180px;position:relative;overflow:hidden;
+}
+.terminal-body .line{opacity:0;transform:translateY(4px);white-space:nowrap;overflow:hidden}
+.terminal-body .line.visible{opacity:1;transform:translateY(0);transition:opacity .3s,transform .3s}
+.terminal-body .prompt{color:#7ee787}
+.terminal-body .cmd{color:#d2a8ff}
+.terminal-body .output{color:#8b949e}
+.terminal-body .pass{color:#3fb950;font-weight:700}
+.terminal-body .fail{color:#f85149;font-weight:700}
+.terminal-body .info{color:#58a6ff}
+.terminal-body .warn{color:#d29922}
+.terminal-body .cursor{
+  display:inline-block;width:8px;height:16px;background:#c9d1d9;
+  animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.terminal-controls{
+  display:flex;align-items:center;gap:12px;padding:8px 16px;
+  background:#161b22;border-top:1px solid var(--card-border);
+}
+.terminal-btn{
+  background:rgba(108,92,231,.2);border:1px solid rgba(108,92,231,.4);border-radius:6px;
+  color:var(--accent2);font-size:.72rem;font-weight:600;padding:4px 14px;cursor:pointer;
+  font-family:var(--mono);transition:all .2s;
+}
+.terminal-btn:hover{background:rgba(108,92,231,.35);border-color:var(--accent)}
+.terminal-progress{
+  flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;
+}
+.terminal-progress-bar{
+  height:100%;width:0;background:var(--accent2);border-radius:2px;transition:width .3s linear;
+}
+
+/* ── Animated State Machine SVG ── */
+.state-machine-svg{
+  width:100%;max-width:900px;margin:24px auto;display:block;
+}
+.state-machine-svg .state-box{
+  rx:10;ry:10;stroke-width:2;fill-opacity:.12;
+}
+.state-machine-svg text.state-label{
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  text-anchor:middle;dominant-baseline:central;
+}
+.state-machine-svg .edge{
+  fill:none;stroke-width:2;stroke-dasharray:6 4;
+  marker-end:url(#arrowhead);
+}
+.state-machine-svg .edge-label{
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  text-anchor:middle;dominant-baseline:central;
+}
+.state-machine-svg .packet{
+  r:5;
+}
+@keyframes packetPulse{0%,100%{r:5;opacity:.9}50%{r:7;opacity:1}}
+
+/* ── File Explorer (Interactive) ── */
+.file-explorer{
+  background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:0;margin:24px 0;overflow:hidden;font-family:var(--mono);font-size:.8rem;
+}
+.file-explorer-header{
+  display:flex;align-items:center;gap:8px;padding:12px 16px;
+  background:var(--bg3);border-bottom:1px solid var(--card-border);
+  font-weight:600;color:var(--text2);font-size:.8rem;
+}
+.file-explorer-header svg{width:16px;height:16px;color:var(--accent2)}
+.fe-tree{padding:8px 0;max-height:420px;overflow-y:auto}
+.fe-item{
+  display:flex;align-items:center;gap:8px;padding:6px 16px 6px 0;
+  cursor:pointer;color:var(--text2);transition:background .15s,color .15s;
+  user-select:none;border-left:2px solid transparent;
+}
+.fe-item:hover{background:rgba(108,92,231,.06);color:var(--text);border-left-color:var(--accent)}
+.fe-item.active{background:rgba(108,92,231,.1);color:var(--accent2);border-left-color:var(--accent2)}
+.fe-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.fe-icon.folder{color:var(--orange)}
+.fe-icon.file-py{color:var(--green)}
+.fe-icon.file-json{color:var(--orange)}
+.fe-icon.file-csv{color:var(--blue)}
+.fe-icon.file-md{color:var(--accent2)}
+.fe-icon.file-other{color:var(--text3)}
+.fe-chevron{
+  width:14px;height:14px;color:var(--text3);transition:transform .2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.fe-chevron.open{transform:rotate(90deg)}
+.fe-chevron.hidden{visibility:hidden}
+.fe-children{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.fe-children.open{max-height:2000px}
+.fe-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fe-meta{font-size:.68rem;color:var(--text3);white-space:nowrap}
+.fe-popup{
+  position:fixed;z-index:500;background:var(--bg2);border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);padding:12px 16px;box-shadow:0 12px 40px rgba(0,0,0,.5);
+  max-width:320px;font-size:.78rem;color:var(--text2);line-height:1.6;
+  animation:fadeIn .15s;pointer-events:auto;
+}
+.fe-popup .fe-popup-title{font-weight:700;color:var(--text);margin-bottom:4px;font-family:var(--mono)}
+.fe-popup .fe-popup-desc{color:var(--text2)}
+
+/* ── Solution Pipeline (Rich Animated) ── */
+.sol-pipeline{
+  position:relative;padding:48px 24px 40px;margin:32px 0;
+  background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius);
+  overflow:hidden;
+}
+.sol-pipeline::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 10% 50%,rgba(116,185,255,.06),transparent 40%),
+    radial-gradient(ellipse at 35% 50%,rgba(108,92,231,.06),transparent 35%),
+    radial-gradient(ellipse at 60% 50%,rgba(0,206,201,.05),transparent 35%),
+    radial-gradient(ellipse at 85% 50%,rgba(0,206,201,.08),transparent 35%);
+}
+.sol-header{text-align:center;margin-bottom:28px;position:relative;z-index:1}
+.sol-stages{
+  display:flex;align-items:stretch;position:relative;z-index:1;
+  gap:0;min-height:260px;
+}
+/* ── Each stage ── */
+.sol-stage{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:0 8px;position:relative;
+}
+.sol-stage-num{
+  font-size:.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:10px;
+}
+.sol-stage-viz{
+  width:100%;flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;margin-bottom:12px;
+}
+.sol-stage-label{font-size:.8rem;font-weight:700;color:var(--text);text-align:center}
+.sol-stage-sub{font-size:.68rem;color:var(--text3);text-align:center;margin-top:3px}
+
+/* ── Connector arrows between stages ── */
+.sol-connector{
+  width:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  position:relative;align-self:center;
+}
+.sol-conn-line{
+  width:100%;height:2px;background:var(--bg4);border-radius:1px;position:relative;overflow:visible;
+}
+.sol-conn-line::after{
+  content:'';position:absolute;right:-3px;top:-4px;
+  border:5px solid transparent;border-left:6px solid var(--text3);
+}
+.sol-conn-particle{
+  position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;
+  filter:blur(0.5px);
+}
+.sol-conn-particle:nth-child(1){animation:connMove 2.2s ease-in-out infinite}
+.sol-conn-particle:nth-child(2){animation:connMove 2.2s ease-in-out .7s infinite;width:5px;height:5px;top:-1.5px}
+.sol-conn-particle:nth-child(3){animation:connMove 2.2s ease-in-out 1.4s infinite;width:6px;height:6px;top:-2px}
+@keyframes connMove{0%{left:-8px;opacity:0}8%{opacity:1}85%{opacity:1}100%{left:calc(100% + 2px);opacity:0}}
+
+/* ── Stage 1: Doc Scanner ── */
+.doc-stack{position:relative;width:80px;height:100px}
+.doc-page{
+  position:absolute;width:64px;border-radius:4px;
+  background:rgba(116,185,255,.08);border:1px solid rgba(116,185,255,.2);
+  font-family:var(--mono);font-size:5px;color:rgba(116,185,255,.4);
+  padding:4px 6px;line-height:1.6;overflow:hidden;
+}
+.doc-page:nth-child(1){left:12px;top:0;height:90px;z-index:3;width:68px}
+.doc-page:nth-child(2){left:6px;top:5px;height:88px;z-index:2;opacity:.6}
+.doc-page:nth-child(3){left:0;top:10px;height:86px;z-index:1;opacity:.3}
+.doc-scan-line{
+  position:absolute;left:14px;width:62px;height:2px;z-index:4;
+  background:linear-gradient(90deg,transparent,var(--blue),var(--blue),transparent);
+  box-shadow:0 0 8px var(--blue);border-radius:1px;
+  animation:scanDoc 3s ease-in-out infinite;
+}
+@keyframes scanDoc{
+  0%{top:8px;opacity:0}5%{opacity:1}45%{top:82px;opacity:1}50%{opacity:0}100%{opacity:0}
+}
+.doc-counter{
+  position:absolute;bottom:-4px;right:0;font-family:var(--mono);font-size:.6rem;
+  font-weight:700;color:var(--blue);
+}
+.doc-counter-num{animation:countUp 3s ease-in-out infinite}
+@keyframes countUp{0%{opacity:.5}45%{opacity:1}50%{opacity:.5}100%{opacity:.5}}
+
+/* ── Stage 2: AI Brain ── */
+.ai-brain{position:relative;width:90px;height:90px;display:flex;align-items:center;justify-content:center}
+.ai-ring{
+  position:absolute;border-radius:50%;border:1.5px solid;
+}
+.ai-ring:nth-child(1){
+  width:88px;height:88px;border-color:rgba(108,92,231,.15);
+  animation:aiSpin 12s linear infinite;
+}
+.ai-ring:nth-child(2){
+  width:68px;height:68px;border-color:rgba(108,92,231,.2);
+  border-style:dashed;animation:aiSpin 8s linear infinite reverse;
+}
+.ai-ring:nth-child(3){
+  width:48px;height:48px;border-color:rgba(108,92,231,.3);
+  animation:aiSpin 5s linear infinite;
+}
+@keyframes aiSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.ai-ring-dot{
+  position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent2);
+  box-shadow:0 0 6px var(--accent2);
+}
+.ai-ring:nth-child(1) .ai-ring-dot{top:-3px;left:calc(50% - 3px)}
+.ai-ring:nth-child(2) .ai-ring-dot{bottom:-3px;left:calc(50% - 3px)}
+.ai-ring:nth-child(3) .ai-ring-dot{right:-3px;top:calc(50% - 3px)}
+.ai-core{
+  position:relative;z-index:2;font-size:1.6rem;
+  animation:aiPulse 2s ease-in-out infinite;
+}
+@keyframes aiPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 transparent)}50%{transform:scale(1.1);filter:drop-shadow(0 0 8px rgba(162,155,254,.4))}}
+.ai-sparks{position:absolute;inset:0}
+.ai-spark{
+  position:absolute;width:3px;height:3px;border-radius:50%;background:var(--accent2);
+}
+.ai-spark:nth-child(1){top:8px;left:20px;animation:sparkle 2s .2s infinite}
+.ai-spark:nth-child(2){top:15px;right:12px;animation:sparkle 2s .8s infinite}
+.ai-spark:nth-child(3){bottom:12px;left:16px;animation:sparkle 2s 1.4s infinite}
+.ai-spark:nth-child(4){bottom:20px;right:20px;animation:sparkle 2s .5s infinite}
+@keyframes sparkle{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}}
+
+/* ── Stage 3: Emulator Server ── */
+.emu-server{position:relative;width:92px;height:100px}
+.emu-box{
+  width:92px;height:72px;border-radius:6px;
+  background:rgba(0,206,201,.06);border:1px solid rgba(0,206,201,.2);
+  padding:6px;overflow:hidden;position:relative;
+}
+.emu-line{
+  height:4px;border-radius:2px;margin-bottom:3px;opacity:0;
+  animation:emuType 6s infinite;
+}
+.emu-line:nth-child(1){width:70%;background:rgba(0,206,201,.3);animation-delay:0s}
+.emu-line:nth-child(2){width:50%;background:rgba(162,155,254,.25);animation-delay:.3s}
+.emu-line:nth-child(3){width:85%;background:rgba(0,206,201,.2);animation-delay:.6s}
+.emu-line:nth-child(4){width:40%;background:rgba(253,203,110,.2);animation-delay:.9s}
+.emu-line:nth-child(5){width:65%;background:rgba(0,206,201,.3);animation-delay:1.2s}
+.emu-line:nth-child(6){width:55%;background:rgba(162,155,254,.25);animation-delay:1.5s}
+.emu-line:nth-child(7){width:75%;background:rgba(0,206,201,.2);animation-delay:1.8s}
+.emu-line:nth-child(8){width:35%;background:rgba(253,203,110,.2);animation-delay:2.1s}
+@keyframes emuType{0%{opacity:0;width:0}8%{opacity:1}15%{width:var(--tw,60%)}85%{opacity:1}92%{opacity:0}100%{opacity:0}}
+.emu-cursor{
+  position:absolute;bottom:8px;left:6px;width:6px;height:8px;
+  background:var(--green);animation:blink 1s step-end infinite;
+}
+.emu-heartbeat{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:3px;
+}
+.emu-hb-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--green);
+  animation:hbPulse 1.5s ease-in-out infinite;
+}
+.emu-hb-dot:nth-child(2){animation-delay:.2s}
+.emu-hb-dot:nth-child(3){animation-delay:.4s}
+@keyframes hbPulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.emu-endpoint-tag{
+  position:absolute;bottom:-2px;right:0;font-family:var(--mono);font-size:.52rem;
+  color:var(--green);background:rgba(0,206,201,.1);padding:1px 5px;border-radius:3px;
+  border:1px solid rgba(0,206,201,.2);
+}
+
+/* ── Stage 4: Test Grid ── */
+.test-grid-wrap{position:relative;width:84px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.test-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:3px;width:75px;
+}
+.test-cell{
+  width:12px;height:12px;border-radius:2px;
+  background:var(--bg4);position:relative;
+  animation:cellFill 8s infinite;
+}
+.test-cell::after{
+  content:'';position:absolute;inset:0;border-radius:2px;
+  background:var(--green);opacity:0;
+  animation:cellGlow 8s infinite;
+}
+/* Stagger 25 cells */
+.test-cell:nth-child(1){animation-delay:0s}.test-cell:nth-child(1)::after{animation-delay:0s}
+.test-cell:nth-child(2){animation-delay:.15s}.test-cell:nth-child(2)::after{animation-delay:.15s}
+.test-cell:nth-child(3){animation-delay:.3s}.test-cell:nth-child(3)::after{animation-delay:.3s}
+.test-cell:nth-child(4){animation-delay:.45s}.test-cell:nth-child(4)::after{animation-delay:.45s}
+.test-cell:nth-child(5){animation-delay:.6s}.test-cell:nth-child(5)::after{animation-delay:.6s}
+.test-cell:nth-child(6){animation-delay:.75s}.test-cell:nth-child(6)::after{animation-delay:.75s}
+.test-cell:nth-child(7){animation-delay:.9s}.test-cell:nth-child(7)::after{animation-delay:.9s}
+.test-cell:nth-child(8){animation-delay:1.05s}.test-cell:nth-child(8)::after{animation-delay:1.05s}
+.test-cell:nth-child(9){animation-delay:1.2s}.test-cell:nth-child(9)::after{animation-delay:1.2s}
+.test-cell:nth-child(10){animation-delay:1.35s}.test-cell:nth-child(10)::after{animation-delay:1.35s}
+.test-cell:nth-child(11){animation-delay:1.5s}.test-cell:nth-child(11)::after{animation-delay:1.5s}
+.test-cell:nth-child(12){animation-delay:1.65s}.test-cell:nth-child(12)::after{animation-delay:1.65s}
+.test-cell:nth-child(13){animation-delay:1.8s}.test-cell:nth-child(13)::after{animation-delay:1.8s}
+.test-cell:nth-child(14){animation-delay:1.95s}.test-cell:nth-child(14)::after{animation-delay:1.95s}
+.test-cell:nth-child(15){animation-delay:2.1s}.test-cell:nth-child(15)::after{animation-delay:2.1s}
+.test-cell:nth-child(16){animation-delay:2.25s}.test-cell:nth-child(16)::after{animation-delay:2.25s}
+.test-cell:nth-child(17){animation-delay:2.4s}.test-cell:nth-child(17)::after{animation-delay:2.4s}
+.test-cell:nth-child(18){animation-delay:2.55s}.test-cell:nth-child(18)::after{animation-delay:2.55s}
+.test-cell:nth-child(19){animation-delay:2.7s}.test-cell:nth-child(19)::after{animation-delay:2.7s}
+.test-cell:nth-child(20){animation-delay:2.85s}.test-cell:nth-child(20)::after{animation-delay:2.85s}
+.test-cell:nth-child(21){animation-delay:3s}.test-cell:nth-child(21)::after{animation-delay:3s}
+.test-cell:nth-child(22){animation-delay:3.15s}.test-cell:nth-child(22)::after{animation-delay:3.15s}
+.test-cell:nth-child(23){animation-delay:3.3s}.test-cell:nth-child(23)::after{animation-delay:3.3s}
+.test-cell:nth-child(24){animation-delay:3.45s}.test-cell:nth-child(24)::after{animation-delay:3.45s}
+.test-cell:nth-child(25){animation-delay:3.6s}.test-cell:nth-child(25)::after{animation-delay:3.6s}
+@keyframes cellFill{0%,100%{background:var(--bg4)}10%{background:rgba(0,206,201,.3)}80%{background:rgba(0,206,201,.3)}90%{background:var(--bg4)}}
+@keyframes cellGlow{0%,100%{opacity:0}10%{opacity:1}80%{opacity:1}90%{opacity:0}}
+.test-counter{
+  font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--green);
+  margin-top:6px;
+}
+
+/* ── Stage 5: Parity Badge ── */
+.parity-badge{position:relative;width:88px;height:88px;display:flex;align-items:center;justify-content:center}
+.parity-ring-outer{
+  position:absolute;width:88px;height:88px;border-radius:50%;
+  border:2px solid rgba(0,206,201,.15);animation:parityRotate 10s linear infinite;
+}
+.parity-ring-outer::before{
+  content:'';position:absolute;top:-3px;left:calc(50% - 3px);
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);
+}
+.parity-ring-inner{
+  position:absolute;width:68px;height:68px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--green),var(--green2),var(--green),var(--green2),var(--green));
+  opacity:.15;animation:parityRotate 6s linear infinite reverse;
+}
+@keyframes parityRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.parity-center{
+  position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;
+}
+.parity-check{
+  font-size:1.6rem;animation:parityPop 3s ease-in-out infinite;
+}
+@keyframes parityPop{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 transparent)}
+  50%{transform:scale(1.15);filter:drop-shadow(0 0 12px rgba(0,206,201,.5))}
+}
+.parity-num{
+  font-family:var(--mono);font-size:.65rem;font-weight:800;color:var(--green);
+  margin-top:2px;white-space:nowrap;
+}
+.parity-glow{
+  position:absolute;width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,206,201,.08),transparent 70%);
+  animation:parityGlow 3s ease-in-out infinite;
+}
+@keyframes parityGlow{0%,100%{transform:scale(.9);opacity:.5}50%{transform:scale(1.2);opacity:1}}
+
+/* ── Traceability Scope Visual ── */
+.scope-visual{
+  display:flex;align-items:stretch;gap:0;margin:24px 0;border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--card-border);
+}
+.scope-segment{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px 16px;position:relative;text-align:center;
+}
+.scope-segment.broad{background:rgba(108,92,231,.06);flex:1891}
+.scope-segment.core{background:rgba(0,206,201,.06);flex:577}
+.scope-segment.covered{background:rgba(0,206,201,.12);flex:559}
+.scope-segment .scope-num{font-size:1.8rem;font-weight:900;font-family:var(--mono)}
+.scope-segment .scope-lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.scope-funnel{
+  display:flex;align-items:center;gap:0;margin:24px 0;
+}
+.scope-funnel-stage{
+  text-align:center;position:relative;
+}
+
+/* ── Dual Target Animated SVG ── */
+.dual-target-svg{width:100%;max-width:700px;margin:24px auto;display:block}
+.dual-target-svg text{font-family:var(--mono)}
+
+@media(max-width:768px){
+  .sol-stages{overflow-x:auto;padding-bottom:12px;min-height:220px}
+  .sol-stage{min-width:100px}
+  .sol-connector{width:28px;min-width:28px}
+  .scope-visual{flex-direction:column}
+  .scope-segment{padding:12px}
+}
 </style>
 </head>
 <body>
@@ -324,6 +723,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
     <li><a href="#architecture">Architecture</a></li>
     <li><a href="#process">Process</a></li>
     <li><a href="#results">Results</a></li>
+    <li><a href="#terminal-demos">Demos</a></li>
     <li><a href="#diversity">Tests</a></li>
     <li><a href="#codebase">Code</a></li>
   </ul>
@@ -366,6 +766,154 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div class="card-icon green">&#10003;</div>
         <h4>The Solution</h4>
         <p>An AI coding agent reads the official API documentation, builds a behavioral emulator, generates hundreds of test cases with full traceability, and validates parity by running the same suite against both the emulator and the real API.</p>
+      </div>
+    </div>
+
+    <!-- Animated Solution Pipeline -->
+    <div class="sol-pipeline" style="margin-top:40px">
+      <div class="sol-header">
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);margin-bottom:6px">How It Works</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--text)">From Documentation to Verified Parity</div>
+        <div style="font-size:.8rem;color:var(--text3);margin-top:4px">Watch data flow through each stage of the AI-driven pipeline</div>
+      </div>
+      <div class="sol-stages">
+        <!-- Stage 1: Doc Ingestion -->
+        <div class="sol-stage">
+          <div class="sol-stage-num">Stage 1</div>
+          <div class="sol-stage-viz">
+            <div class="doc-stack">
+              <div class="doc-page">PaymentIntents API create a new intent with amount currency and capture method the payment flows through...</div>
+              <div class="doc-page"></div>
+              <div class="doc-page"></div>
+              <div class="doc-scan-line"></div>
+              <div class="doc-counter"><span class="doc-counter-num">577 reqs</span></div>
+            </div>
+          </div>
+          <div class="sol-stage-label">Ingest Docs</div>
+          <div class="sol-stage-sub">11 pages parsed</div>
+        </div>
+
+        <!-- Connector 1→2 -->
+        <div class="sol-connector">
+          <div class="sol-conn-line">
+            <div class="sol-conn-particle" style="background:var(--blue);box-shadow:0 0 6px var(--blue)"></div>
+            <div class="sol-conn-particle" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></div>
+            <div class="sol-conn-particle" style="background:var(--blue);box-shadow:0 0 6px var(--blue)"></div>
+          </div>
+        </div>
+
+        <!-- Stage 2: AI Agent -->
+        <div class="sol-stage">
+          <div class="sol-stage-num">Stage 2</div>
+          <div class="sol-stage-viz">
+            <div class="ai-brain">
+              <div class="ai-ring"><div class="ai-ring-dot"></div></div>
+              <div class="ai-ring"><div class="ai-ring-dot"></div></div>
+              <div class="ai-ring"><div class="ai-ring-dot"></div></div>
+              <div class="ai-core">&#129302;</div>
+              <div class="ai-sparks">
+                <div class="ai-spark"></div>
+                <div class="ai-spark"></div>
+                <div class="ai-spark"></div>
+                <div class="ai-spark"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sol-stage-label">AI Reasons</div>
+          <div class="sol-stage-sub">Reads, plans, codes</div>
+        </div>
+
+        <!-- Connector 2→3 -->
+        <div class="sol-connector">
+          <div class="sol-conn-line">
+            <div class="sol-conn-particle" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></div>
+            <div class="sol-conn-particle" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+            <div class="sol-conn-particle" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Emulator -->
+        <div class="sol-stage">
+          <div class="sol-stage-num">Stage 3</div>
+          <div class="sol-stage-viz">
+            <div class="emu-server">
+              <div class="emu-box">
+                <div class="emu-line" style="--tw:70%"></div>
+                <div class="emu-line" style="--tw:50%"></div>
+                <div class="emu-line" style="--tw:85%"></div>
+                <div class="emu-line" style="--tw:40%"></div>
+                <div class="emu-line" style="--tw:65%"></div>
+                <div class="emu-line" style="--tw:55%"></div>
+                <div class="emu-line" style="--tw:75%"></div>
+                <div class="emu-line" style="--tw:35%"></div>
+                <div class="emu-cursor"></div>
+              </div>
+              <div class="emu-heartbeat">
+                <div class="emu-hb-dot"></div>
+                <div class="emu-hb-dot"></div>
+                <div class="emu-hb-dot"></div>
+              </div>
+              <div class="emu-endpoint-tag">8 endpoints</div>
+            </div>
+          </div>
+          <div class="sol-stage-label">Build Emulator</div>
+          <div class="sol-stage-sub">452 lines of Python</div>
+        </div>
+
+        <!-- Connector 3→4 -->
+        <div class="sol-connector">
+          <div class="sol-conn-line">
+            <div class="sol-conn-particle" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+            <div class="sol-conn-particle" style="background:var(--orange);box-shadow:0 0 6px var(--orange)"></div>
+            <div class="sol-conn-particle" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+          </div>
+        </div>
+
+        <!-- Stage 4: Test Runner -->
+        <div class="sol-stage">
+          <div class="sol-stage-num">Stage 4</div>
+          <div class="sol-stage-viz">
+            <div class="test-grid-wrap">
+              <div class="test-grid">
+                <div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div>
+                <div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div>
+                <div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div>
+                <div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div>
+                <div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div><div class="test-cell"></div>
+              </div>
+              <div class="test-counter">250 / 250</div>
+            </div>
+          </div>
+          <div class="sol-stage-label">Run Tests</div>
+          <div class="sol-stage-sub">Dual-target suite</div>
+        </div>
+
+        <!-- Connector 4→5 -->
+        <div class="sol-connector">
+          <div class="sol-conn-line">
+            <div class="sol-conn-particle" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+            <div class="sol-conn-particle" style="background:var(--green2);box-shadow:0 0 6px var(--green2)"></div>
+            <div class="sol-conn-particle" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+          </div>
+        </div>
+
+        <!-- Stage 5: Parity -->
+        <div class="sol-stage">
+          <div class="sol-stage-num">Stage 5</div>
+          <div class="sol-stage-viz">
+            <div class="parity-badge">
+              <div class="parity-glow"></div>
+              <div class="parity-ring-outer"></div>
+              <div class="parity-ring-inner"></div>
+              <div class="parity-center">
+                <div class="parity-check">&#10003;</div>
+                <div class="parity-num">500/500</div>
+              </div>
+            </div>
+          </div>
+          <div class="sol-stage-label">100% Parity</div>
+          <div class="sol-stage-sub">96.9% doc coverage</div>
+        </div>
       </div>
     </div>
   </div>
@@ -422,16 +970,114 @@ nav a.active::before{opacity:0;transform:scale(1)}
     <p class="subtitle">A lightweight Python HTTP server that implements Stripe's PaymentIntents API subset, with a dual-target test harness for behavioral parity verification.</p>
 
     <h3>PaymentIntent State Machine</h3>
-    <div class="state-diagram">
-      <div class="state-node init">requires_payment_method</div>
-      <div class="state-arrow">→ confirm →</div>
-      <div class="state-node mid">requires_capture</div>
-      <div class="state-arrow">→ capture →</div>
-      <div class="state-node final">succeeded</div>
-      <div style="width:100%;text-align:center;margin:8px 0">
-        <span class="state-arrow" style="font-size:.85rem">↓ cancel (from any cancelable state)</span>
+    <p style="color:var(--text2);font-size:.9rem;margin-bottom:8px">Watch packets traverse the lifecycle — from creation to capture, confirmation, or cancellation.</p>
+    <svg class="state-machine-svg" viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" id="state-machine">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#6a6a82"/></marker>
+        <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#00cec9"/></marker>
+        <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#ff6b6b"/></marker>
+        <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#74b9ff"/></marker>
+        <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#fdcb6e"/></marker>
+      </defs>
+      <!-- States -->
+      <rect class="state-box" x="20" y="120" width="200" height="50" stroke="#74b9ff" fill="#74b9ff"/>
+      <text class="state-label" x="120" y="145" fill="#74b9ff">requires_payment_method</text>
+
+      <rect class="state-box" x="330" y="50" width="200" height="50" stroke="#fdcb6e" fill="#fdcb6e"/>
+      <text class="state-label" x="430" y="75" fill="#fdcb6e">requires_confirmation</text>
+
+      <rect class="state-box" x="330" y="190" width="200" height="50" stroke="#fdcb6e" fill="#fdcb6e"/>
+      <text class="state-label" x="430" y="215" fill="#fdcb6e">requires_capture</text>
+
+      <rect class="state-box" x="650" y="50" width="200" height="50" stroke="#00cec9" fill="#00cec9"/>
+      <text class="state-label" x="750" y="75" fill="#00cec9">succeeded</text>
+
+      <rect class="state-box" x="650" y="270" width="200" height="50" stroke="#ff6b6b" fill="#ff6b6b"/>
+      <text class="state-label" x="750" y="295" fill="#ff6b6b">canceled</text>
+
+      <rect class="state-box" x="330" y="120" width="200" height="50" stroke="#a29bfe" fill="#a29bfe"/>
+      <text class="state-label" x="430" y="145" fill="#a29bfe">requires_action</text>
+
+      <!-- Edges -->
+      <!-- create → requires_payment_method (self, shown as label) -->
+      <text x="120" y="110" fill="#74b9ff" font-size="9" text-anchor="middle" font-family="var(--mono)" font-weight="600">POST /create</text>
+
+      <!-- requires_payment_method → requires_confirmation -->
+      <path class="edge" d="M220,135 Q275,75 330,75" stroke="#74b9ff" marker-end="url(#arrowBlue)" id="edge-rpm-rc"/>
+      <text class="edge-label" x="260" y="88" fill="#74b9ff">attach pm</text>
+
+      <!-- requires_confirmation → succeeded (auto capture) -->
+      <path class="edge" d="M530,75 L650,75" stroke="#00cec9" marker-end="url(#arrowGreen)" id="edge-rc-succ"/>
+      <text class="edge-label" x="590" y="65" fill="#00cec9">confirm (auto)</text>
+
+      <!-- requires_payment_method → requires_capture (confirm w/ manual) -->
+      <path class="edge" d="M220,155 Q275,215 330,215" stroke="#fdcb6e" marker-end="url(#arrowOrange)" id="edge-rpm-rcap"/>
+      <text class="edge-label" x="260" y="205" fill="#fdcb6e">confirm (manual)</text>
+
+      <!-- requires_capture → succeeded -->
+      <path class="edge" d="M530,210 Q600,160 650,80" stroke="#00cec9" marker-end="url(#arrowGreen)" id="edge-rcap-succ"/>
+      <text class="edge-label" x="600" y="140" fill="#00cec9">capture</text>
+
+      <!-- cancel edges -->
+      <path class="edge" d="M120,170 Q120,295 650,295" stroke="#ff6b6b" stroke-dasharray="4 4" marker-end="url(#arrowRed)" id="edge-rpm-cancel"/>
+      <text class="edge-label" x="380" y="288" fill="#ff6b6b">cancel</text>
+
+      <path class="edge" d="M430,240 Q430,295 650,295" stroke="#ff6b6b" stroke-dasharray="4 4" marker-end="url(#arrowRed)" id="edge-rcap-cancel"/>
+
+      <!-- Animated packets -->
+      <circle class="packet" fill="#74b9ff" id="pkt-confirm">
+        <animateMotion dur="3s" repeatCount="indefinite" begin="0s" keyTimes="0;0.4;1" keyPoints="0;1;1" calcMode="linear">
+          <mpath href="#edge-rpm-rc"/>
+        </animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.35;0.4" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="packet" fill="#00cec9" id="pkt-succeed">
+        <animateMotion dur="3s" repeatCount="indefinite" begin="1s" keyTimes="0;0.4;1" keyPoints="0;1;1" calcMode="linear">
+          <mpath href="#edge-rc-succ"/>
+        </animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.35;0.4" dur="3s" repeatCount="indefinite" begin="1s"/>
+        <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="packet" fill="#fdcb6e" id="pkt-manual">
+        <animateMotion dur="4s" repeatCount="indefinite" begin="1.5s" keyTimes="0;0.35;1" keyPoints="0;1;1" calcMode="linear">
+          <mpath href="#edge-rpm-rcap"/>
+        </animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.3;0.35" dur="4s" repeatCount="indefinite" begin="1.5s"/>
+        <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="packet" fill="#00cec9" id="pkt-capture">
+        <animateMotion dur="4s" repeatCount="indefinite" begin="3s" keyTimes="0;0.35;1" keyPoints="0;1;1" calcMode="linear">
+          <mpath href="#edge-rcap-succ"/>
+        </animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.3;0.35" dur="4s" repeatCount="indefinite" begin="3s"/>
+        <animate attributeName="r" values="4;6;4" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle class="packet" fill="#ff6b6b" id="pkt-cancel">
+        <animateMotion dur="5s" repeatCount="indefinite" begin="2s" keyTimes="0;0.3;1" keyPoints="0;1;1" calcMode="linear">
+          <mpath href="#edge-rpm-cancel"/>
+        </animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.25;0.3" dur="5s" repeatCount="indefinite" begin="2s"/>
+        <animate attributeName="r" values="4;5;4" dur="1s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+
+    <!-- Traceability Scope Visual -->
+    <h3>Traceability Scope</h3>
+    <p style="color:var(--text2);font-size:.9rem;margin-bottom:8px">From 1,891 raw doc sentences to 577 core-scope requirements, 559 covered by tests.</p>
+    <div class="scope-visual">
+      <div class="scope-segment broad">
+        <div class="scope-num" style="color:var(--accent2)">1,891</div>
+        <div class="scope-lbl">Raw Sentences</div>
       </div>
-      <div class="state-node cancel">canceled</div>
+      <div class="scope-segment core">
+        <div class="scope-num" style="color:var(--orange)">577</div>
+        <div class="scope-lbl">Core Scope</div>
+      </div>
+      <div class="scope-segment covered">
+        <div class="scope-num" style="color:var(--green)">559</div>
+        <div class="scope-lbl">Covered (96.9%)</div>
+      </div>
     </div>
 
     <h3>Emulator Endpoints</h3>
@@ -455,22 +1101,83 @@ nav a.active::before{opacity:0;transform:scale(1)}
     </div>
 
     <h3 style="margin-top:32px">Dual-Target Test Architecture</h3>
-    <pre><span class="cmt">  ┌─────────────────────────────────────────────────────┐</span>
-<span class="cmt">  │</span>          <span class="fn">250 Generated Test Cases</span> (JSON)            <span class="cmt">│</span>
-<span class="cmt">  │</span>     <span class="str">test-cases/generated/payment_intents_cases.json</span>  <span class="cmt">│</span>
-<span class="cmt">  └──────────────────────┬──────────────────────────────┘</span>
-                         <span class="cmt">│</span>
-              <span class="cmt">┌──────────┴──────────┐</span>
-              <span class="cmt">│</span>                     <span class="cmt">│</span>
-      <span class="kw">TARGET=stripe</span>          <span class="kw">TARGET=emulator</span>
-              <span class="cmt">│</span>                     <span class="cmt">│</span>
-    <span class="fn">api.stripe.com</span>       <span class="fn">localhost:8000</span>
-              <span class="cmt">│</span>                     <span class="cmt">│</span>
-              <span class="cmt">└──────────┬──────────┘</span>
-                         <span class="cmt">│</span>
-              <span class="str">Identical Assertions</span>
-              <span class="str">JSONL Result Logging</span>
-              <span class="str">Pass-Rate Comparison</span></pre>
+    <p style="color:var(--text2);font-size:.9rem;margin-bottom:16px">The same 250 test cases run against both targets. Watch requests fan out and results converge.</p>
+    <svg class="dual-target-svg" viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gradStripe" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#635bff" stop-opacity=".15"/>
+          <stop offset="100%" stop-color="#635bff" stop-opacity=".05"/>
+        </linearGradient>
+        <linearGradient id="gradEmu" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#00cec9" stop-opacity=".15"/>
+          <stop offset="100%" stop-color="#00cec9" stop-opacity=".05"/>
+        </linearGradient>
+      </defs>
+      <!-- Test Cases Box -->
+      <rect x="200" y="10" width="300" height="55" rx="10" fill="rgba(108,92,231,.1)" stroke="#6c5ce7" stroke-width="2"/>
+      <text x="350" y="32" fill="#a29bfe" font-size="13" font-weight="700" text-anchor="middle">250 Generated Test Cases</text>
+      <text x="350" y="52" fill="#6a6a82" font-size="9" text-anchor="middle">payment_intents_cases.json</text>
+
+      <!-- Split lines -->
+      <path d="M350,65 L350,95" stroke="#6a6a82" stroke-width="2" stroke-dasharray="4 3"/>
+      <path d="M350,95 L180,130" stroke="#635bff" stroke-width="2" id="dt-left-down"/>
+      <path d="M350,95 L520,130" stroke="#00cec9" stroke-width="2" id="dt-right-down"/>
+
+      <!-- Stripe Target -->
+      <rect x="80" y="130" width="200" height="80" rx="10" fill="url(#gradStripe)" stroke="#635bff" stroke-width="2"/>
+      <text x="180" y="155" fill="#7a73ff" font-size="11" font-weight="700" text-anchor="middle">TARGET = stripe</text>
+      <text x="180" y="175" fill="#a29bfe" font-size="12" font-weight="600" text-anchor="middle">api.stripe.com</text>
+      <text x="180" y="195" fill="#6a6a82" font-size="9" text-anchor="middle">Bearer sk_test_...</text>
+
+      <!-- Emulator Target -->
+      <rect x="420" y="130" width="200" height="80" rx="10" fill="url(#gradEmu)" stroke="#00cec9" stroke-width="2"/>
+      <text x="520" y="155" fill="#00cec9" font-size="11" font-weight="700" text-anchor="middle">TARGET = emulator</text>
+      <text x="520" y="175" fill="#55efc4" font-size="12" font-weight="600" text-anchor="middle">localhost:8000</text>
+      <text x="520" y="195" fill="#6a6a82" font-size="9" text-anchor="middle">No auth required</text>
+
+      <!-- Converge lines -->
+      <path d="M180,210 L350,260" stroke="#635bff" stroke-width="2" id="dt-left-up"/>
+      <path d="M520,210 L350,260" stroke="#00cec9" stroke-width="2" id="dt-right-up"/>
+
+      <!-- Results Box -->
+      <rect x="200" y="260" width="300" height="100" rx="10" fill="rgba(0,206,201,.06)" stroke="#00cec9" stroke-width="2"/>
+      <text x="350" y="285" fill="#00cec9" font-size="12" font-weight="700" text-anchor="middle">Identical Assertions</text>
+      <text x="350" y="305" fill="#55efc4" font-size="11" text-anchor="middle">JSONL Result Logging</text>
+      <text x="350" y="325" fill="#a29bfe" font-size="11" text-anchor="middle">Pass-Rate Comparison</text>
+      <text x="350" y="348" fill="#3fb950" font-size="13" font-weight="900" text-anchor="middle">500 / 500 PASSED</text>
+
+      <!-- Animated packets going down left -->
+      <circle r="4" fill="#635bff" opacity="0">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0s"><mpath href="#dt-left-down"/></animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;1" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="3;5;3" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="4" fill="#635bff" opacity="0">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0.7s"><mpath href="#dt-left-down"/></animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;1" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+        <animate attributeName="r" values="3;5;3" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Animated packets going down right -->
+      <circle r="4" fill="#00cec9" opacity="0">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0.3s"><mpath href="#dt-right-down"/></animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;1" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+        <animate attributeName="r" values="3;5;3" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="4" fill="#00cec9" opacity="0">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="1s"><mpath href="#dt-right-down"/></animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;1" dur="2s" repeatCount="indefinite" begin="1s"/>
+        <animate attributeName="r" values="3;5;3" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Animated packets converging -->
+      <circle r="4" fill="#3fb950" opacity="0">
+        <animateMotion dur="2.5s" repeatCount="indefinite" begin="1.5s"><mpath href="#dt-left-up"/></animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;1" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+      </circle>
+      <circle r="4" fill="#3fb950" opacity="0">
+        <animateMotion dur="2.5s" repeatCount="indefinite" begin="1.8s"><mpath href="#dt-right-up"/></animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.8;1" dur="2.5s" repeatCount="indefinite" begin="1.8s"/>
+      </circle>
+    </svg>
 
     <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px">
       <span class="file-link" onclick="showModal('emulator/app.py','python')">
@@ -658,6 +1365,104 @@ nav a.active::before{opacity:0;transform:scale(1)}
   </div>
 </section>
 
+<!-- ── Terminal Replays ── -->
+<div class="divider"></div>
+<section id="terminal-demos">
+  <div class="container reveal">
+    <div class="section-label">Live Demos</div>
+    <h2>Watch the Tests Run</h2>
+    <p class="subtitle">Asciinema-style replays of actual console output from the dual-target test suite.</p>
+
+    <!-- Terminal 1: Emulator Smoke Test -->
+    <h3>Emulator Smoke Test</h3>
+    <div class="terminal" id="term-smoke">
+      <div class="terminal-header">
+        <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+        <span class="terminal-title">python scripts/phase0_smoke.py</span>
+      </div>
+      <div class="terminal-body" id="term-smoke-body">
+        <div class="line"><span class="prompt">$ </span><span class="cmd">python scripts/phase0_smoke.py</span></div>
+        <div class="line"><span class="info">[INFO]</span> Starting emulator on localhost:8000...</div>
+        <div class="line"><span class="pass">[PASS]</span> Health check: GET /health → 200 OK</div>
+        <div class="line"><span class="prompt">$ </span><span class="output">POST /v1/payment_intents {amount: 2000, currency: "usd"}</span></div>
+        <div class="line"><span class="pass">[PASS]</span> Create PaymentIntent → 200 | id=pi_emul_abc123 status=requires_payment_method</div>
+        <div class="line"><span class="prompt">$ </span><span class="output">POST /v1/payment_intents/pi_emul_abc123/confirm {payment_method: "pm_card_visa"}</span></div>
+        <div class="line"><span class="pass">[PASS]</span> Confirm → 200 | status=succeeded</div>
+        <div class="line"><span class="prompt">$ </span><span class="output">POST /v1/refunds {payment_intent: "pi_emul_abc123"}</span></div>
+        <div class="line"><span class="pass">[PASS]</span> Refund → 200 | status=succeeded amount_refunded=2000</div>
+        <div class="line"><span class="info">────────────────────────────────────────</span></div>
+        <div class="line"><span class="pass">All smoke tests passed ✓</span> <span class="output">4/4 in 0.12s</span></div>
+      </div>
+      <div class="terminal-controls">
+        <button class="terminal-btn" onclick="replayTerminal('term-smoke-body')">&#9654; Replay</button>
+        <div class="terminal-progress"><div class="terminal-progress-bar" id="term-smoke-progress"></div></div>
+      </div>
+    </div>
+
+    <!-- Terminal 2: Dual-Target Suite -->
+    <h3 style="margin-top:32px">Dual-Target Suite (250 Cases)</h3>
+    <div class="terminal" id="term-dual">
+      <div class="terminal-header">
+        <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+        <span class="terminal-title">python scripts/run_dual_target_suite.py</span>
+      </div>
+      <div class="terminal-body" id="term-dual-body">
+        <div class="line"><span class="prompt">$ </span><span class="cmd">python scripts/run_dual_target_suite.py</span></div>
+        <div class="line"><span class="info">[INFO]</span> Loading 250 cases from payment_intents_cases.json</div>
+        <div class="line"><span class="info">[INFO]</span> Starting emulator on localhost:8000...</div>
+        <div class="line"><span class="warn">[TARGET]</span> <span class="output">Running against</span> <span class="info">EMULATOR</span> <span class="output">(localhost:8000)</span></div>
+        <div class="line"><span class="pass">[  1/250]</span> CREATE_OK_001 ····················· <span class="pass">PASS</span> <span class="output">42ms</span></div>
+        <div class="line"><span class="pass">[  2/250]</span> CREATE_OK_002 ····················· <span class="pass">PASS</span> <span class="output">38ms</span></div>
+        <div class="line"><span class="pass">[ 40/250]</span> CREATE_ERR_001 ···················· <span class="pass">PASS</span> <span class="output">15ms</span></div>
+        <div class="line"><span class="pass">[125/250]</span> CAPTURE_PARTIAL_003 ··············· <span class="pass">PASS</span> <span class="output">67ms</span></div>
+        <div class="line"><span class="pass">[200/250]</span> IDEMPOTENCY_SAME_005 ············· <span class="pass">PASS</span> <span class="output">31ms</span></div>
+        <div class="line"><span class="pass">[250/250]</span> LIST_RETRIEVE_005 ················ <span class="pass">PASS</span> <span class="output">22ms</span></div>
+        <div class="line"><span class="info">────────────────────────────────────────</span></div>
+        <div class="line"><span class="pass">EMULATOR: 250/250 passed</span> <span class="output">(100.0%) in 8.4s</span></div>
+        <div class="line"></div>
+        <div class="line"><span class="warn">[TARGET]</span> <span class="output">Running against</span> <span class="info">STRIPE API</span> <span class="output">(api.stripe.com)</span></div>
+        <div class="line"><span class="pass">[  1/250]</span> CREATE_OK_001 ····················· <span class="pass">PASS</span> <span class="output">312ms</span></div>
+        <div class="line"><span class="pass">[125/250]</span> CAPTURE_PARTIAL_003 ··············· <span class="pass">PASS</span> <span class="output">487ms</span></div>
+        <div class="line"><span class="pass">[250/250]</span> LIST_RETRIEVE_005 ················ <span class="pass">PASS</span> <span class="output">298ms</span></div>
+        <div class="line"><span class="info">────────────────────────────────────────</span></div>
+        <div class="line"><span class="pass">STRIPE:   250/250 passed</span> <span class="output">(100.0%) in 142.7s</span></div>
+        <div class="line"></div>
+        <div class="line"><span class="pass">═══ PARITY CONFIRMED ═══</span> <span class="output">500/500 total · 100% match · doc coverage 96.9%</span></div>
+      </div>
+      <div class="terminal-controls">
+        <button class="terminal-btn" onclick="replayTerminal('term-dual-body')">&#9654; Replay</button>
+        <div class="terminal-progress"><div class="terminal-progress-bar" id="term-dual-progress"></div></div>
+      </div>
+    </div>
+
+    <!-- Terminal 3: Partial Capture Edge Case -->
+    <h3 style="margin-top:32px">Edge Case: Partial Capture Sequence</h3>
+    <div class="terminal" id="term-partial">
+      <div class="terminal-header">
+        <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+        <span class="terminal-title">CAPTURE_PARTIAL test trace</span>
+      </div>
+      <div class="terminal-body" id="term-partial-body">
+        <div class="line"><span class="info">[CASE]</span> CAPTURE_PARTIAL_012 — Two-part partial capture</div>
+        <div class="line"><span class="prompt">Step 1 →</span> <span class="cmd">POST /v1/payment_intents</span> <span class="output">{amount: 5000, currency: "usd", capture_method: "manual"}</span></div>
+        <div class="line">         <span class="pass">200</span> <span class="output">status=requires_payment_method | id=pi_emul_7x9k2</span></div>
+        <div class="line"><span class="prompt">Step 2 →</span> <span class="cmd">POST /v1/payment_intents/pi_emul_7x9k2/confirm</span> <span class="output">{payment_method: "pm_card_visa"}</span></div>
+        <div class="line">         <span class="pass">200</span> <span class="output">status=requires_capture | amount_capturable=5000</span></div>
+        <div class="line"><span class="prompt">Step 3 →</span> <span class="cmd">POST /v1/payment_intents/pi_emul_7x9k2/capture</span> <span class="output">{amount_to_capture: 3000}</span></div>
+        <div class="line">         <span class="pass">200</span> <span class="output">status=requires_capture | amount_received=3000 | amount_capturable=2000</span></div>
+        <div class="line"><span class="prompt">Step 4 →</span> <span class="cmd">POST /v1/payment_intents/pi_emul_7x9k2/capture</span> <span class="output">{amount_to_capture: 2000}</span></div>
+        <div class="line">         <span class="pass">200</span> <span class="output">status=succeeded | amount_received=5000 | amount_capturable=0</span></div>
+        <div class="line"><span class="info">────────────────────────────────────────</span></div>
+        <div class="line"><span class="pass">CAPTURE_PARTIAL_012: PASS</span> <span class="output">(4 steps, 4 assertions matched)</span></div>
+      </div>
+      <div class="terminal-controls">
+        <button class="terminal-btn" onclick="replayTerminal('term-partial-body')">&#9654; Replay</button>
+        <div class="terminal-progress"><div class="terminal-progress-bar" id="term-partial-progress"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── Section 6: Test Diversity ── -->
 <div class="divider"></div>
 <section id="diversity">
@@ -755,99 +1560,15 @@ nav a.active::before{opacity:0;transform:scale(1)}
 <section id="codebase">
   <div class="container reveal">
     <div class="section-label">Explore the Code</div>
-    <h2>Full Codebase — Click to View</h2>
-    <p class="subtitle">Every file in the project. Click any item to open a syntax-highlighted viewer.</p>
+    <h2>Full Codebase — Click to Explore</h2>
+    <p class="subtitle">Interactive file explorer. Click folders to expand, click files to view source with syntax highlighting.</p>
 
-    <h3>Core Emulator</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
-      <span class="file-link" onclick="showModal('emulator/app.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        emulator/app.py <span style="color:var(--text3);font-size:.7rem">(452 lines)</span>
-      </span>
-    </div>
-
-    <h3>Test Harness</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
-      <span class="file-link" onclick="showModal('test-cases/harness/http_client.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        http_client.py <span style="color:var(--text3);font-size:.7rem">(90 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/case_runner.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        case_runner.py <span style="color:var(--text3);font-size:.7rem">(155 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/config.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        config.py <span style="color:var(--text3);font-size:.7rem">(67 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/conftest.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        conftest.py <span style="color:var(--text3);font-size:.7rem">(40 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/result_logger.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        result_logger.py <span style="color:var(--text3);font-size:.7rem">(52 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/test_smoke.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        test_smoke.py <span style="color:var(--text3);font-size:.7rem">(74 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/test_generated_suite.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        test_generated_suite.py <span style="color:var(--text3);font-size:.7rem">(51 lines)</span>
-      </span>
-    </div>
-
-    <h3>Scripts &amp; Automation</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
-      <span class="file-link" onclick="showModal('scripts/phase2_generate_cases.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        phase2_generate_cases.py <span style="color:var(--text3);font-size:.7rem">(667 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('scripts/run_dual_target_suite.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        run_dual_target_suite.py <span style="color:var(--text3);font-size:.7rem">(92 lines)</span>
-      </span>
-      <span class="file-link" onclick="showModal('scripts/phase0_smoke.py','python')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        phase0_smoke.py <span style="color:var(--text3);font-size:.7rem">(69 lines)</span>
-      </span>
-    </div>
-
-    <h3>Reports &amp; Logs</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
-      <span class="file-link" onclick="showModal('artifacts/reports/pass_rate_summary.json','json')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        pass_rate_summary.json
-      </span>
-      <span class="file-link" onclick="showModal('artifacts/reports/doc_coverage_report.json','json')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        doc_coverage_report.json
-      </span>
-      <span class="file-link" onclick="showModal('artifacts/logs/latest_run_stripe.jsonl','jsonl')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        latest_run_stripe.jsonl
-      </span>
-      <span class="file-link" onclick="showModal('artifacts/logs/latest_run_emulator.jsonl','jsonl')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        latest_run_emulator.jsonl
-      </span>
-    </div>
-
-    <h3>Documentation &amp; Planning</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
-      <span class="file-link" onclick="showModal('plan.md','markdown')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        plan.md
-      </span>
-      <span class="file-link" onclick="showModal('docs/requirements/traceability_scope_core.csv','csv')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        traceability_scope_core.csv
-      </span>
-      <span class="file-link" onclick="showModal('docs/requirements/test_case_traceability.csv','csv')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        test_case_traceability.csv
-      </span>
+    <div class="file-explorer">
+      <div class="file-explorer-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        stripe-payment-simulator
+      </div>
+      <div class="fe-tree" id="file-tree"></div>
     </div>
   </div>
 </section>
@@ -1176,6 +1897,197 @@ function renderCSV(text) {
   }
   return html;
 }
+
+// ── Terminal Replay System ──
+function replayTerminal(bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  const lines = body.querySelectorAll('.line');
+  const progressBar = body.closest('.terminal').querySelector('.terminal-progress-bar');
+  lines.forEach(l => l.classList.remove('visible'));
+  let i = 0;
+  const totalLines = lines.length;
+  function showNext() {
+    if (i >= totalLines) {
+      if (progressBar) progressBar.style.width = '100%';
+      return;
+    }
+    lines[i].classList.add('visible');
+    if (progressBar) progressBar.style.width = ((i + 1) / totalLines * 100) + '%';
+    i++;
+    setTimeout(showNext, 180 + Math.random() * 120);
+  }
+  if (progressBar) progressBar.style.width = '0%';
+  showNext();
+}
+
+// Auto-play terminals when they scroll into view
+document.querySelectorAll('.terminal-body').forEach(body => {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        replayTerminal(body.id);
+        obs.unobserve(body);
+      }
+    });
+  }, { threshold: 0.3 });
+  obs.observe(body);
+});
+
+// ── Interactive File Explorer ──
+const fileTree = [
+  { name: 'emulator/', type: 'folder', desc: 'Core API emulator (452 lines)', children: [
+    { name: 'app.py', type: 'py', path: 'emulator/app.py', desc: 'Main emulator server — 8 endpoints, state machine, idempotency', lines: 452 },
+    { name: 'README.md', type: 'md', path: 'emulator/README.md', desc: 'Emulator usage documentation', lines: 45 }
+  ]},
+  { name: 'test-cases/', type: 'folder', desc: 'Test harness and generated test cases', children: [
+    { name: 'harness/', type: 'folder', desc: 'Pytest-based dual-target test harness', children: [
+      { name: 'http_client.py', type: 'py', path: 'test-cases/harness/http_client.py', desc: 'ApiClient class — handles both Stripe and emulator targets', lines: 90 },
+      { name: 'case_runner.py', type: 'py', path: 'test-cases/harness/case_runner.py', desc: 'Multi-step test case executor with variable chaining', lines: 155 },
+      { name: 'config.py', type: 'py', path: 'test-cases/harness/config.py', desc: 'Target configuration, base URLs, auth headers', lines: 67 },
+      { name: 'conftest.py', type: 'py', path: 'test-cases/harness/conftest.py', desc: 'Pytest fixtures — target selection, emulator lifecycle', lines: 40 },
+      { name: 'result_logger.py', type: 'py', path: 'test-cases/harness/result_logger.py', desc: 'JSONL result logging for pass/fail analysis', lines: 52 },
+      { name: 'test_smoke.py', type: 'py', path: 'test-cases/harness/test_smoke.py', desc: 'Quick smoke tests — health, create, confirm, refund', lines: 74 },
+      { name: 'test_generated_suite.py', type: 'py', path: 'test-cases/harness/test_generated_suite.py', desc: 'Parametrized runner for all 250 generated cases', lines: 51 }
+    ]},
+    { name: 'generated/', type: 'folder', desc: 'Auto-generated test case definitions', children: [
+      { name: 'payment_intents_cases.json', type: 'json', path: 'test-cases/generated/payment_intents_cases.json', desc: '250 test cases across 16 categories (seed=42)', lines: null }
+    ]}
+  ]},
+  { name: 'scripts/', type: 'folder', desc: 'Automation scripts for each project phase', children: [
+    { name: 'phase0_smoke.py', type: 'py', path: 'scripts/phase0_smoke.py', desc: 'Quick validation — starts emulator, runs smoke tests', lines: 69 },
+    { name: 'phase1_ingest_docs.py', type: 'py', path: 'scripts/phase1_ingest_docs.py', desc: 'Stripe doc parser — extracts requirement sentences', lines: null },
+    { name: 'phase2_generate_cases.py', type: 'py', path: 'scripts/phase2_generate_cases.py', desc: 'Deterministic test case generator (667 lines)', lines: 667 },
+    { name: 'phase6_build_reports.py', type: 'py', path: 'scripts/phase6_build_reports.py', desc: 'Computes pass rates, doc coverage, generates reports', lines: null },
+    { name: 'run_dual_target_suite.py', type: 'py', path: 'scripts/run_dual_target_suite.py', desc: 'Orchestrates full dual-target run (emulator + Stripe)', lines: 92 }
+  ]},
+  { name: 'artifacts/', type: 'folder', desc: 'Generated reports and test run logs', children: [
+    { name: 'reports/', type: 'folder', desc: 'Machine-readable result summaries', children: [
+      { name: 'pass_rate_summary.json', type: 'json', path: 'artifacts/reports/pass_rate_summary.json', desc: 'Pass rates by target and category' },
+      { name: 'doc_coverage_report.json', type: 'json', path: 'artifacts/reports/doc_coverage_report.json', desc: '96.9% — 559/577 doc sentences covered' }
+    ]},
+    { name: 'logs/', type: 'folder', desc: 'JSONL test run logs for every execution', children: [
+      { name: 'latest_run_stripe.jsonl', type: 'jsonl', path: 'artifacts/logs/latest_run_stripe.jsonl', desc: 'Final Stripe run — 250/250 passed' },
+      { name: 'latest_run_emulator.jsonl', type: 'jsonl', path: 'artifacts/logs/latest_run_emulator.jsonl', desc: 'Final emulator run — 250/250 passed' }
+    ]}
+  ]},
+  { name: 'docs/', type: 'folder', desc: 'Documentation, requirements, traceability', children: [
+    { name: 'requirements/', type: 'folder', desc: 'Requirement extraction and traceability', children: [
+      { name: 'traceability_scope_core.csv', type: 'csv', path: 'docs/requirements/traceability_scope_core.csv', desc: '577 core-scope requirement sentences' },
+      { name: 'test_case_traceability.csv', type: 'csv', path: 'docs/requirements/test_case_traceability.csv', desc: '1,512 test-to-doc mappings' },
+      { name: 'ingestion_summary.json', type: 'json', path: 'docs/requirements/ingestion_summary.json', desc: 'Doc ingestion stats and metadata' }
+    ]},
+    { name: 'data_story.md', type: 'md', path: 'docs/data_story.md', desc: 'Narrative writeup of the project' },
+    { name: 'demo_runbook.md', type: 'md', path: 'docs/demo_runbook.md', desc: 'Step-by-step demo instructions' },
+    { name: 'coverage_scope.md', type: 'md', path: 'docs/coverage_scope.md', desc: 'Coverage methodology and scope decisions' }
+  ]}
+];
+
+function getFileIcon(type) {
+  const icons = {
+    folder: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>',
+    py: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    json: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    jsonl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    csv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    md: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+  };
+  return icons[type] || icons.py;
+}
+
+function getFileTypeClass(type) {
+  const map = { folder: 'folder', py: 'file-py', json: 'file-json', jsonl: 'file-json', csv: 'file-csv', md: 'file-md' };
+  return map[type] || 'file-other';
+}
+
+function getModalType(type) {
+  const map = { py: 'python', json: 'json', jsonl: 'jsonl', csv: 'csv', md: 'markdown' };
+  return map[type] || 'python';
+}
+
+let activePopup = null;
+function showPopup(e, item) {
+  hidePopup();
+  const popup = document.createElement('div');
+  popup.className = 'fe-popup';
+  popup.innerHTML = `<div class="fe-popup-title">${escapeHTML(item.name)}</div><div class="fe-popup-desc">${escapeHTML(item.desc || '')}${item.lines ? '<br><span style="color:var(--text3)">' + item.lines + ' lines</span>' : ''}</div>`;
+  document.body.appendChild(popup);
+  const rect = e.target.closest('.fe-item').getBoundingClientRect();
+  popup.style.left = Math.min(rect.right + 8, window.innerWidth - 340) + 'px';
+  popup.style.top = Math.max(8, rect.top - 10) + 'px';
+  activePopup = popup;
+}
+function hidePopup() {
+  if (activePopup) { activePopup.remove(); activePopup = null; }
+}
+
+function buildTree(items, container, depth) {
+  items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'fe-item';
+    row.style.paddingLeft = (16 + depth * 20) + 'px';
+
+    const isFolder = item.type === 'folder';
+    const chevron = document.createElement('span');
+    chevron.className = 'fe-chevron' + (isFolder ? '' : ' hidden');
+    chevron.innerHTML = '&#9654;';
+    row.appendChild(chevron);
+
+    const icon = document.createElement('span');
+    icon.className = 'fe-icon ' + getFileTypeClass(item.type);
+    icon.innerHTML = getFileIcon(item.type);
+    row.appendChild(icon);
+
+    const name = document.createElement('span');
+    name.className = 'fe-name';
+    name.textContent = item.name;
+    row.appendChild(name);
+
+    if (item.lines) {
+      const meta = document.createElement('span');
+      meta.className = 'fe-meta';
+      meta.textContent = item.lines + ' lines';
+      row.appendChild(meta);
+    }
+
+    container.appendChild(row);
+
+    if (isFolder && item.children) {
+      const childContainer = document.createElement('div');
+      childContainer.className = 'fe-children';
+      container.appendChild(childContainer);
+      buildTree(item.children, childContainer, depth + 1);
+
+      row.addEventListener('click', (e) => {
+        e.stopPropagation();
+        childContainer.classList.toggle('open');
+        chevron.classList.toggle('open');
+        hidePopup();
+      });
+    } else {
+      row.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hidePopup();
+        document.querySelectorAll('.fe-item').forEach(el => el.classList.remove('active'));
+        row.classList.add('active');
+        if (item.path) showModal(item.path, getModalType(item.type));
+      });
+    }
+
+    row.addEventListener('mouseenter', (e) => showPopup(e, item));
+    row.addEventListener('mouseleave', hidePopup);
+  });
+}
+
+const treeContainer = document.getElementById('file-tree');
+if (treeContainer) buildTree(fileTree, treeContainer, 0);
+
+// Auto-expand first two levels
+document.querySelectorAll('#file-tree > .fe-children').forEach(c => {
+  c.classList.add('open');
+  const chevron = c.previousElementSibling.querySelector('.fe-chevron');
+  if (chevron) chevron.classList.add('open');
+});
 
 function renderJSONL(text) {
   const lines = text.trim().split('\n').filter(l => l.trim());
