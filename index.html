@@ -118,6 +118,16 @@ h3{font-size:1.4rem;font-weight:700;margin-bottom:12px}
 
 /* ── Code Blocks (inline) ── */
 code{font-family:var(--mono);font-size:.85em;background:var(--bg3);padding:2px 8px;border-radius:4px}
+code.tree-link{
+  cursor:pointer;
+  border:1px solid transparent;
+  transition:background .2s,border-color .2s,color .2s;
+}
+code.tree-link:hover{
+  background:rgba(108,92,231,.12);
+  border-color:rgba(108,92,231,.28);
+  color:var(--accent2);
+}
 pre{
   background:var(--bg2);border:1px solid var(--card-border);border-radius:var(--radius-sm);
   padding:20px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.8;
@@ -1180,23 +1190,23 @@ nav a.active::before{opacity:0;transform:scale(1)}
     </svg>
 
     <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px">
-      <span class="file-link" onclick="showModal('emulator/app.py','python')">
+      <span class="file-link" onclick="openRepoFile('emulator/app.py','python')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         emulator/app.py
       </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/http_client.py','python')">
+      <span class="file-link" onclick="openRepoFile('test-cases/harness/http_client.py','python')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         test-cases/harness/http_client.py
       </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/case_runner.py','python')">
+      <span class="file-link" onclick="openRepoFile('test-cases/harness/case_runner.py','python')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         test-cases/harness/case_runner.py
       </span>
-      <span class="file-link" onclick="showModal('test-cases/harness/conftest.py','python')">
+      <span class="file-link" onclick="openRepoFile('test-cases/harness/conftest.py','python')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         test-cases/harness/conftest.py
       </span>
-      <span class="file-link" onclick="showModal('scripts/phase2_generate_cases.py','python')">
+      <span class="file-link" onclick="openRepoFile('scripts/phase2_generate_cases.py','python')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         scripts/phase2_generate_cases.py
       </span>
@@ -1224,7 +1234,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div class="tl-phase">Phase 1 — Doc Ingestion</div>
         <div class="tl-title">Extracted 1,891 sentences from 11 Stripe doc pages</div>
         <div class="tl-desc">Parsed official Stripe documentation, split into sentence-level requirement units with stable IDs (REQ00001–REQ01891), and categorized into create/confirm/cancel/capture/refund/idempotency/errors. Narrowed to 577 core scope sentences.
-          <span class="file-link" onclick="showModal('docs/requirements/traceability_scope_core.csv','csv')" style="margin-top:8px">
+          <span class="file-link" onclick="openRepoFile('docs/requirements/traceability_scope_core.csv','csv')" style="margin-top:8px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             traceability_scope_core.csv
           </span>
@@ -1235,7 +1245,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div class="tl-phase">Phase 2 — Test Generation</div>
         <div class="tl-title">Generated 250 multi-step test cases from requirements</div>
         <div class="tl-desc">Deterministic generation (seed=42) producing 16 test categories covering happy paths, validation errors, state transitions, idempotency, partial captures, and refund edge cases. Each case has 2–5 steps with variable chaining.
-          <span class="file-link" onclick="showModal('test-cases/generated/payment_intents_cases.json','json')" style="margin-top:8px">
+          <span class="file-link" onclick="openRepoFile('test-cases/generated/payment_intents_cases.json','json')" style="margin-top:8px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             payment_intents_cases.json
           </span>
@@ -1267,11 +1277,11 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div class="tl-phase">Phase 6 — Metrics</div>
         <div class="tl-title">96.9% documentation coverage, 100% combined pass rate</div>
         <div class="tl-desc">Computed pass rates by target, doc sentence coverage, and generated machine-readable reports.
-          <span class="file-link" onclick="showModal('artifacts/reports/pass_rate_summary.json','json')" style="margin-top:8px">
+          <span class="file-link" onclick="openRepoFile('artifacts/reports/pass_rate_summary.json','json')" style="margin-top:8px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             pass_rate_summary.json
           </span>
-          <span class="file-link" onclick="showModal('artifacts/reports/doc_coverage_report.json','json')" style="margin-top:8px">
+          <span class="file-link" onclick="openRepoFile('artifacts/reports/doc_coverage_report.json','json')" style="margin-top:8px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             doc_coverage_report.json
           </span>
@@ -1282,7 +1292,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div class="tl-phase">Phase 7–8 — Story & Packaging</div>
         <div class="tl-title">Data story, demo runbook, and reproducible artifacts</div>
         <div class="tl-desc">Built this interactive data story, final packaged repo with all logs, reports, and reproducible demo commands.
-          <span class="file-link" onclick="showModal('plan.md','markdown')" style="margin-top:8px">
+          <span class="file-link" onclick="openRepoFile('plan.md','markdown')" style="margin-top:8px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             plan.md
           </span>
@@ -1305,7 +1315,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div style="font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Stripe Live API (Test Mode)</div>
         <div style="font-size:3.5rem;font-weight:900;font-family:var(--mono);color:var(--green)">100%</div>
         <div style="font-size:.9rem;color:var(--text2);margin-top:4px">250 / 250 cases passed</div>
-        <span class="file-link" onclick="showModal('artifacts/logs/latest_run_stripe.jsonl','jsonl')" style="margin-top:16px">
+        <span class="file-link" onclick="openRepoFile('artifacts/logs/latest_run_stripe.jsonl','jsonl')" style="margin-top:16px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           View Stripe run logs
         </span>
@@ -1314,7 +1324,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <div style="font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Local Emulator</div>
         <div style="font-size:3.5rem;font-weight:900;font-family:var(--mono);color:var(--green)">100%</div>
         <div style="font-size:.9rem;color:var(--text2);margin-top:4px">250 / 250 cases passed</div>
-        <span class="file-link" onclick="showModal('artifacts/logs/latest_run_emulator.jsonl','jsonl')" style="margin-top:16px">
+        <span class="file-link" onclick="openRepoFile('artifacts/logs/latest_run_emulator.jsonl','jsonl')" style="margin-top:16px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           View emulator run logs
         </span>
@@ -1356,7 +1366,7 @@ nav a.active::before{opacity:0;transform:scale(1)}
         <p style="font-size:.9rem;color:var(--text2);margin-bottom:8px"><strong style="color:var(--text)">559 of 577</strong> documentation sentences are exercised by at least one test case.</p>
         <p style="font-size:.9rem;color:var(--text2);margin-bottom:8px"><strong style="color:var(--text)">1,512</strong> total test-to-doc mappings across the traceability matrix.</p>
         <p style="font-size:.9rem;color:var(--text2)"><strong style="color:var(--text)">18 uncovered</strong> sentences relate to advanced edge cases outside the PaymentIntents core flow.</p>
-        <span class="file-link" onclick="showModal('docs/requirements/test_case_traceability.csv','csv')" style="margin-top:12px">
+        <span class="file-link" onclick="openRepoFile('docs/requirements/test_case_traceability.csv','csv')" style="margin-top:12px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           test_case_traceability.csv
         </span>
@@ -1787,6 +1797,11 @@ function getRepoBase() {
   return './';
 }
 
+function openRepoFile(filePath, fileType) {
+  openTreePath(filePath);
+  showModal(filePath, fileType);
+}
+
 function showModal(filePath, fileType) {
   const overlay = document.getElementById('modal-overlay');
   const title = document.getElementById('modal-title');
@@ -2021,11 +2036,88 @@ function hidePopup() {
   if (activePopup) { activePopup.remove(); activePopup = null; }
 }
 
-function buildTree(items, container, depth) {
+const treeIndex = new Map();
+
+function normalizeTreePath(path) {
+  return (path || '').replace(/\\/g, '/').replace(/^\.\/+/, '');
+}
+
+function clearTreeSelection() {
+  document.querySelectorAll('.fe-item.active').forEach(el => el.classList.remove('active'));
+}
+
+function getAncestorTreePaths(path) {
+  const normalized = normalizeTreePath(path);
+  const isFolder = normalized.endsWith('/');
+  const segments = normalized.split('/').filter(Boolean);
+  const ancestors = [];
+  let current = '';
+  segments.forEach((segment, idx) => {
+    current += segment + '/';
+    if (idx < segments.length - (isFolder ? 0 : 1)) ancestors.push(current);
+  });
+  return ancestors;
+}
+
+function openTreePath(path) {
+  const normalized = normalizeTreePath(path);
+  const entry = treeIndex.get(normalized);
+  if (!entry) return false;
+
+  const codebaseSection = document.getElementById('codebase');
+  if (codebaseSection) {
+    codebaseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  getAncestorTreePaths(normalized).forEach(ancestorPath => {
+    const ancestor = treeIndex.get(ancestorPath);
+    if (ancestor && ancestor.childContainer) {
+      ancestor.childContainer.classList.add('open');
+      if (ancestor.chevron) ancestor.chevron.classList.add('open');
+    }
+  });
+
+  clearTreeSelection();
+  entry.row.classList.add('active');
+
+  if (entry.item.type === 'folder' && entry.childContainer) {
+    entry.childContainer.classList.add('open');
+    if (entry.chevron) entry.chevron.classList.add('open');
+  }
+
+  entry.row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  hidePopup();
+  return true;
+}
+
+function bindTreeReferences() {
+  document.querySelectorAll('code').forEach(codeEl => {
+    const path = normalizeTreePath(codeEl.textContent.trim());
+    if (!treeIndex.has(path)) return;
+    codeEl.classList.add('tree-link');
+    codeEl.setAttribute('role', 'button');
+    codeEl.setAttribute('tabindex', '0');
+    if (codeEl.dataset.treeBound === 'true') return;
+    codeEl.dataset.treeBound = 'true';
+    codeEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      openTreePath(path);
+    });
+    codeEl.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      openTreePath(path);
+    });
+  });
+}
+
+function buildTree(items, container, depth, parentPath = '') {
   items.forEach(item => {
+    const itemPath = normalizeTreePath(parentPath + item.name);
     const row = document.createElement('div');
     row.className = 'fe-item';
     row.style.paddingLeft = (16 + depth * 20) + 'px';
+    row.dataset.treePath = itemPath;
 
     const isFolder = item.type === 'folder';
     const chevron = document.createElement('span');
@@ -2050,16 +2142,21 @@ function buildTree(items, container, depth) {
       row.appendChild(meta);
     }
 
+    const treeEntry = { item, row, chevron, childContainer: null };
+    treeIndex.set(itemPath, treeEntry);
     container.appendChild(row);
 
     if (isFolder && item.children) {
       const childContainer = document.createElement('div');
       childContainer.className = 'fe-children';
       container.appendChild(childContainer);
-      buildTree(item.children, childContainer, depth + 1);
+      treeEntry.childContainer = childContainer;
+      buildTree(item.children, childContainer, depth + 1, itemPath);
 
       row.addEventListener('click', (e) => {
         e.stopPropagation();
+        clearTreeSelection();
+        row.classList.add('active');
         childContainer.classList.toggle('open');
         chevron.classList.toggle('open');
         hidePopup();
@@ -2068,7 +2165,7 @@ function buildTree(items, container, depth) {
       row.addEventListener('click', (e) => {
         e.stopPropagation();
         hidePopup();
-        document.querySelectorAll('.fe-item').forEach(el => el.classList.remove('active'));
+        clearTreeSelection();
         row.classList.add('active');
         if (item.path) showModal(item.path, getModalType(item.type));
       });
@@ -2080,7 +2177,10 @@ function buildTree(items, container, depth) {
 }
 
 const treeContainer = document.getElementById('file-tree');
-if (treeContainer) buildTree(fileTree, treeContainer, 0);
+if (treeContainer) {
+  buildTree(fileTree, treeContainer, 0);
+  bindTreeReferences();
+}
 
 // Auto-expand first two levels
 document.querySelectorAll('#file-tree > .fe-children').forEach(c => {
